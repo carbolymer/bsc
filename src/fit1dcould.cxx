@@ -17,14 +17,20 @@ Double_t fungek(Double_t *x, Double_t *par)
   Int_t nkbin = (int) (x[0]/0.002);
   if (nkbin>499) nkbin=499;
   Double_t Kc = calckcoulggg->GetY()[nkbin]; 
-  Double_t gcpart = exp(-qinv2*rad*rad);
+  Double_t gcpart = TMath::Exp(-qinv2*rad*rad);
   Double_t ecpart = (exps*exps*exps*exps)/((exps*exps+qinv2)*(exps*exps+qinv2));
 
   return norm * ((1-lam-expf) + lam*Kc*(1+gcpart) + expf*Kc*(1+ecpart) + q2sl*qinv2 + qbgs*x[0]);
 }
 
-void fit1dcould(TH1D *ratq) 
+bool fit1dcould(const char *fileName, Double_t &Rinv, Double_t &RinvE) 
 {
+  TFile *inFile = new TFile(fileName);
+  if(inFile->IsZombie())
+    return kFALSE;
+
+  TH1D *ratq = (TH1D*) inFile->Get("CfnReYlm00IdLCYlm");
+
   TFile *ifk = new TFile("ffcomp.root");
   calckcoulggg = (TGraph *) ifk->Get("KCoulomb");
 
@@ -51,5 +57,9 @@ void fit1dcould(TH1D *ratq)
 //   funq->FixParameter(5,-6.51437e+00);
 //   funq->FixParameter(6,-1.01904e+00);
 
-  ratq->Fit(funq,"","",0.03,1.2);
+  TFitResultPtr result = ratq->Fit(funq,"NS","",0.001,1.2);
+
+  Rinv = result->Value(2);
+  RinvE = result->FitResult::Error(2);
+  return kTRUE;
 }

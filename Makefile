@@ -6,7 +6,7 @@ DIR_TMP=./tmp/
 
 CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O0 -g 
 LFLAGS=`root-config --libs` -lboost_regex -g
-OBJS=fitshanalyticaaabackshdircovcoulpars.o main.o merger.o
+OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o main.o merger.o
 
 # search paths
 vpath %.xx $(DIR_HPP)
