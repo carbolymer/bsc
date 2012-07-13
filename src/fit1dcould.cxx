@@ -57,7 +57,7 @@ bool fit1dcould(const char *fileName, Double_t &Rinv, Double_t &RinvE)
 //   funq->FixParameter(5,-6.51437e+00);
 //   funq->FixParameter(6,-1.01904e+00);
 
-  TFitResultPtr result = ratq->Fit(funq,"NS","",0.001,1.2);
+  TFitResultPtr result = ratq->Fit(funq,"NS","",0.001,0.5);
 
   Rinv = result->Value(2);
   RinvE = result->FitResult::Error(2);

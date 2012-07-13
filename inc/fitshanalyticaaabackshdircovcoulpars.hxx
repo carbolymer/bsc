@@ -40,5 +40,4 @@ bool fitshanalyticaaabackshdircovcoulpars(const char *filname,
   Double_t &Rout, Double_t &Rside, Double_t &Rlong, Double_t &Rinv, Double_t &lambda,
    Double_t &dRout, Double_t &dRside, Double_t &dRlong, Double_t &dRinv, Double_t &dlambda);
 
-
 #endif

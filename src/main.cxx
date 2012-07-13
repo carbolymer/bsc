@@ -13,6 +13,10 @@ int main()
 {
 	const unsigned int nParticles = 3;
 	const unsigned int markerSize = 1;
+	const Double_t mTRangeMin = 0;
+	const Double_t mTRangeMax = 1.5;
+	const Double_t RRangeMin = 2;
+	const Double_t RRangeMax = 8.5;
 
 	const Double_t particleMasses[3] = { // in GeV / c^2
 		0.493677,// kaon
@@ -32,16 +36,16 @@ int main()
 	ifstream pionFilesList("filelist.pipi.in", ifstream::in);
 	ifstream protonFilesList("filelist.pp.in", ifstream::in);
 
-	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1400, 800);
+	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1300, 900);
 	canvasRcomponents->Divide(3,2);
 	// TCanvas *canvasR = new TCanvas("canvasR", "R", 1400, 800);
 	// canvasRcomponents->Divide(2,3);
 	
-	TLegend *legendLCMS = new TLegend(0.80,0.15,0.9,0.4);
-	TLegend *legendInv = new TLegend(0.80,0.15,0.9,0.4);
-	TLegend *legendOut = new TLegend(0.80,0.15,0.9,0.4);
-	TLegend *legendSide = new TLegend(0.80,0.15,0.9,0.4);
-	TLegend *legendLong = new TLegend(0.80,0.15,0.9,0.4);
+	TLegend *legendLCMS = new TLegend(0.8,0.75,0.9,0.9);
+	TLegend *legendInv = new TLegend(0.8,0.75,0.9,0.9);
+	TLegend *legendOut = new TLegend(0.8,0.75,0.9,0.9);
+	TLegend *legendSide = new TLegend(0.8,0.75,0.9,0.9);
+	TLegend *legendLong = new TLegend(0.8,0.75,0.9,0.9);
 
 	TGraphErrors *RlcmsGraph[nParticles];
 	TGraphErrors *RinvGraph[nParticles];
@@ -69,8 +73,6 @@ int main()
 	pionFilesList.close();
 	protonFilesList.close();
 
-	// TRandom *gRandom = new TRandom();
-
 	for(int j = 0; j < nParticles; ++j)
 	{	
 		for(int i = 0, size = particleFiles[j].size(); i < size; ++i)
@@ -85,50 +87,39 @@ int main()
 				return 1;
 			}
 
-			// if(!fitshanalyticaaabackshdircovcoulpars(boost::get<0>(particleFiles[j][i]).c_str(),
-			// 	Rout, Rside, Rlong, Rlcms, lambda,
-	  //  			dRout, dRside, dRlong, dRlcms, dlambda))
-			// {
-			// 	cout << "3D Fit failed!" << endl;
-			// 	return 1;
-			// }
+			if(!fitshanalyticaaabackshdircovcoulpars(boost::get<0>(particleFiles[j][i]).c_str(),
+				Rout, Rside, Rlong, Rlcms, lambda,
+	   			dRout, dRside, dRlong, dRlcms, dlambda))
+			{
+				cout << "3D Fit failed!" << endl;
+				return 1;
+			}
 
 			/*R_long*/
-			// Rlong = gRandom->Uniform(2.5/(i+1.0)+j,3.0/(i+1.0)+j);
-			// dRlong = gRandom->Uniform(0.1,1.0/(i+1));
-
 			RlongGraph[j]->SetPoint(i, mT, Rlong);
 			RlongGraph[j]->SetPointError(i, 0, dRlong);
 
 			/*R_side*/
-			// Rside = gRandom->Uniform(2.5/(i+1.0)+j,3.0/(i+1.0)+j);
-			// dRside = gRandom->Uniform(0.1,1.0/(i+1));
-
 			RsideGraph[j]->SetPoint(i, mT, Rside);
 			RsideGraph[j]->SetPointError(i, 0, dRside);	
 
 			/*R_out*/
-			// Rout = gRandom->Uniform(2.5/(i+1.0)+j,3.0/(i+1.0)+j);
-			// dRout = gRandom->Uniform(0.1,1.0/(i+1));
-
 			RoutGraph[j]->SetPoint(i, mT, Rout);
 			RoutGraph[j]->SetPointError(i, 0, dRout);
 
 			/* R_LCMS */
-			// Rlcms = gRandom->Uniform(2.5/(i+1.0)+j,3.0/(i+1.0)+j);
-			// dRlcms = gRandom->Uniform(0.1,1.0/(i+1));
-
 			RlcmsGraph[j]->SetPoint(i, mT, Rlcms);
 			RlcmsGraph[j]->SetPointError(i, 0, dRlcms);
 
 			/* R_invariant */
-			cout << "RINV" << Rinv << "+/-" << dRinv << endl;
 			RinvGraph[j]->SetPoint(i, mT, Rinv);
 			RinvGraph[j]->SetPointError(i, 0, dRinv);
 
 		}
 		/* R_out */
 		canvasRcomponents->cd(1);
+		RoutGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
+		RoutGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
 		if(j == 0)
 			RoutGraph[j]->Draw("A*");
 		else
@@ -142,6 +133,8 @@ int main()
 
 		/* R_side */
 		canvasRcomponents->cd(2);
+		RsideGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
+		RsideGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
 		if(j == 0)
 			RsideGraph[j]->Draw("A*");
 		else
@@ -155,6 +148,8 @@ int main()
 
 		/* R_long */
 		canvasRcomponents->cd(3);
+		RlongGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
+		RlongGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
 		if(j == 0)
 			RlongGraph[j]->Draw("A*");
 		else
@@ -168,6 +163,8 @@ int main()
 
 		/* R_LCMS */
 		canvasRcomponents->cd(4);
+		RlcmsGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
+		RlcmsGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
 		if(j == 0)
 			RlcmsGraph[j]->Draw("A*");
 		else
@@ -181,6 +178,8 @@ int main()
 
 		/* R_invariant */
 		canvasRcomponents->cd(5);
+		RinvGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
+		RinvGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
 		if(j == 0)
 			RinvGraph[j]->Draw("A*");
 		else

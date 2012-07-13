@@ -667,8 +667,8 @@ void GetPar(ifstream *inf, Double_t *parval, Int_t *isfixed, Double_t *parmin, D
 }
 
 void fitshanalyticreal( char *pref,
-   Double_t &Ro, Double_t &Rs, Double_t &Rl, Double_t &Rinv, Double_t &lambda,
-   Double_t &RoE, Double_t &RsE, Double_t &RlE, Double_t &RinvE, Double_t &dlambda)
+   Double_t &Rout, Double_t &Rside, Double_t &Rlong, Double_t &Rinv, Double_t &lambda,
+   Double_t &RoutE, Double_t &RsideE, Double_t &RlongE, Double_t &RinvE, Double_t &dlambda)
 {
   TVirtualFitter *fitter;
 
@@ -680,9 +680,9 @@ void fitshanalyticreal( char *pref,
   double ykc20rf[100];
   double ykc22rf[100];
 
-  Ro = gRoL/0.197327;
-  Rs = gRsL/0.197327;
-  Rl = gRlL/0.197327;
+  double Ro = gRoL/0.197327;
+  double Rs = gRsL/0.197327;
+  double Rl = gRlL/0.197327;
 
   f1 = new TF1("myf00",myfunctionegg,0,0.6,7);
   f1->SetParameters(Ro, Rs, Rl,0.0,1.0,0.5,0.0);
@@ -865,15 +865,15 @@ void fitshanalyticreal( char *pref,
   cout << "c20mval " << fitter->GetParameter(18) << " +/- " << fitter->GetParError(18)*chimult << endl;
   cout << "c20wval " << fitter->GetParameter(19) << " +/- " << fitter->GetParError(19)*chimult << endl;
 
-  Ro = fitter->GetParameter(0)*0.197327;
-  RoE = fitter->GetParError(0)*0.197327*chimult;
-  Rs = fitter->GetParameter(1)*0.197327;
-  RsE = fitter->GetParError(1)*0.197327*chimult;
-  Rl = fitter->GetParameter(2)*0.197327;
-  RlE = fitter->GetParError(2)*0.197327*chimult;
-
-  double Ri = Rinv = TMath::Sqrt((Ro*Ro + Rs*Rs + Rl*Rl)/3.0);
-  double RiE = RinvE = (RoE*Ro + RsE*Rs + RlE*Rl)/(3*Ri);
+  Ro = Rout = fitter->GetParameter(0)*0.197327;
+  Double_t RoE = RoutE = fitter->GetParError(0)*0.197327*chimult;
+  Rs = Rside = fitter->GetParameter(1)*0.197327;
+  Double_t RsE = RsideE = fitter->GetParError(1)*0.197327*chimult;
+  Rl = Rlong = fitter->GetParameter(2)*0.197327;
+  Double_t RlE = RlongE = fitter->GetParError(2)*0.197327*chimult;
+  
+  Double_t Ri = Rinv = TMath::Sqrt((Ro*Ro + Rs*Rs + Rl*Rl)/3.0);
+  Double_t RiE = RinvE = (RoE*Ro + RsE*Rs + RlE*Rl)/(3*Ri);
 
   cout << endl;
   cout << "Rinv " << Ri << " +/- " << RiE << endl;

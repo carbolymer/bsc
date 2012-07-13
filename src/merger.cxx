@@ -19,7 +19,7 @@ Bool_t mergeFiles(std::vector<ktBinFile> &inputFiles, ktBinFile &outputFile)
 	merger.SetMsgPrefix("[merger]");
 	merger.SetNotrees(kFALSE);
 
-	if (!merger.OutputFile(boost::get<0>(outputFile).c_str(),kFALSE,1))
+	if (!merger.OutputFile(boost::get<0>(outputFile).c_str(),kTRUE,1))
 	{
 		std::cout << "Could not open output file: " << boost::get<0>(outputFile) << std::endl;
 		return kFALSE;
