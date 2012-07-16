@@ -29,7 +29,9 @@ bool fit1dcould(const char *fileName, Double_t &Rinv, Double_t &RinvE)
   if(inFile->IsZombie())
     return kFALSE;
 
-  TH1D *ratq = (TH1D*) inFile->Get("CfnReYlm00IdLCYlm");
+  TH1D *ratq = (TH1D*) inFile->Get("cnumn1da");
+  TH1D *den = (TH1D*) inFile->Get("cdenn1da");
+  ratq->Divide(den);
 
   TFile *ifk = new TFile("ffcomp.root");
   calckcoulggg = (TGraph *) ifk->Get("KCoulomb");
@@ -62,4 +64,25 @@ bool fit1dcould(const char *fileName, Double_t &Rinv, Double_t &RinvE)
   Rinv = result->Value(2);
   RinvE = result->FitResult::Error(2);
   return kTRUE;
+}
+
+int main(int argc, char **argv)
+{
+  Double_t Rinv, dRinv;
+
+  if(argc < 5)
+  {
+    std::cout << "Example:" << std::endl
+      << argv[0] << " file ktmin ktmax type" << std::endl
+      << argv[0] << " outfilekk51a.root 0.12 0.4 kk" << std::endl;
+      return 1;
+  }
+  std::string pairType(argv[3]);
+
+  fit1dcould(argv[1], Rinv, dRinv);
+
+  std::ofstream RinvFile((std::string(argv[4]) + std::string("_Rinv.data")).c_str(), std::ifstream::app);
+
+  RinvFile << argv[2] << "\t" << argv[3] << "\t" << Rinv << "\t" << dRinv << std::endl;
+  RinvFile.close();
 }

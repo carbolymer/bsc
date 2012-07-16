@@ -11,6 +11,43 @@ Double_t parsg[20];
 Double_t parmin[20];
 Double_t parmax[20];
 
+int main(int argc, char **argv)
+{
+  Double_t Rout, Rside, Rlong, Rlcms, lambda, dRout, dRside, dRlong, dRlcms, dlambda;
+
+  if(argc < 5)
+  {
+    std::cout << "Example:" << std::endl
+      << argv[0] << " file ktmin ktmax type" << std::endl
+      << argv[0] << " outfilekk51a.root 0.12 0.4 kk" << std::endl;
+      return 1;
+  }
+  std::string pairType(argv[3]);
+
+  fitshanalyticaaabackshdircovcoulpars(argv[1], 
+  Rout, Rside, Rlong, Rlcms, lambda,
+  dRout, dRside, dRlong, dRlcms, dlambda);
+  std::ofstream RoutFile((std::string(argv[4]) + std::string("_Rout.data")).c_str(), std::ifstream::app);
+  std::ofstream RsideFile((std::string(argv[4]) + std::string("_Rside.data")).c_str(), std::ifstream::app);
+  std::ofstream RlongFile((std::string(argv[4]) + std::string("_Rlong.data")).c_str(), std::ifstream::app);
+  std::ofstream RlcmsFile((std::string(argv[4]) + std::string("_Rlcms.data")).c_str(), std::ifstream::app);
+  std::ofstream lambdaFile((std::string(argv[4]) + std::string("_lambda.data")).c_str(), std::ifstream::app);
+
+  RoutFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
+  RsideFile << argv[2] << "\t" << argv[3] << "\t" << Rside << "\t" << dRout << std::endl;
+  RlongFile << argv[2] << "\t" << argv[3] << "\t" << Rlong << "\t" << dRout << std::endl;
+  RlcmsFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
+  lambdaFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
+
+  RoutFile.close();
+  RsideFile.close();
+  RlongFile.close();
+  RlcmsFile.close();
+  lambdaFile.close();
+  return 0;
+}
+
+
 double getavk(TGraph *grk, Double_t minb, Double_t maxb)
 {
   Int_t bins = 0; 
@@ -1179,3 +1216,4 @@ bool fitshanalyticaaabackshdircovcoulpars(const char *filname,
   fitshanalyticreal(numname, Rout, Rside, Rlong, Rinv, lambda, dRout, dRside, dRlong, dRinv, dlambda);
   return true;
 }
+

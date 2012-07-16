@@ -6,17 +6,33 @@ DIR_TMP=./tmp/
 
 CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O0 -g 
 LFLAGS=`root-config --libs` -lboost_regex -g
-OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o main.o merger.o
+OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o plotter.o merger.o
 
 # search paths
 vpath %.xx $(DIR_HPP)
 vpath %.cxx $(DIR_CPP)
 
-main: $(OBJS)
-	echo -e "\033[01;33m[make]\033[00;32m Linking all files..."
+all: fitsh merger fit1d plotter
+
+fitsh: fitshanalyticaaabackshdircovcoulpars.o
+	echo -e "\033[01;33m[make]\033[00;32m Generating fitsh..."
 	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
-	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)main
-	echo -e "\033[01;33m[make]\033[01;36m $(DIR_BIN)main \033[00;32m has been built successfully. \033[00m"
+	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)fitsh	
+
+merger: merger.o
+	echo -e "\033[01;33m[make]\033[00;32m Generating merger..."
+	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
+	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)merger
+
+fit1d: fit1dcould.o
+	echo -e "\033[01;33m[make]\033[00;32m Generating fit1d..."	
+	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
+	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)fit1d
+
+plotter: plotter.o
+	echo -e "\033[01;33m[make]\033[00;32m Generating plotter..."	
+	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
+	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)plotter
 
 $(OBJS): %.o: %.cxx
 	@[ -d $(DIR_OBJ) ] || mkdir -p $(DIR_OBJ)
@@ -27,7 +43,10 @@ $(OBJS): %.o: %.cxx
 clean:
 	rm -f $(DIR_OBJ)*.o
 	rm -f $(DIR_OBJ)*.root
-	rm -f ./main
+	rm -f ./fitsh
+	rm -f ./fit1d
+	rm -f ./merger
+	rm -f ./plotter
 	echo -e "\033[01;33m[make]\033[00;32m All *.o and binary files removed.\033[00m"
 
 .PHONY: all clean

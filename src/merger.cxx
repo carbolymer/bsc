@@ -21,13 +21,13 @@ Bool_t mergeFiles(std::vector<ktBinFile> &inputFiles, ktBinFile &outputFile)
 
 	if (!merger.OutputFile(boost::get<0>(outputFile).c_str(),kTRUE,1))
 	{
-		std::cout << "Could not open output file: " << boost::get<0>(outputFile) << std::endl;
+		std::cerr << "Could not open output file: " << boost::get<0>(outputFile) << std::endl;
 		return kFALSE;
 	}
 	for(std::vector<ktBinFile>::iterator it = inputFiles.begin() ; it != inputFiles.end() ; ++it)
 		if(!merger.AddFile(boost::get<0>(*it).c_str()))
 		{
-			std::cout << "could not add file: " << boost::get<0>(*it).c_str() << std::endl;
+			std::cerr << "could not add file: " << boost::get<0>(*it).c_str() << std::endl;
 			return kFALSE;
 		}
 	boost::get<1>(outputFile) = boost::get<1>(inputFiles.front());
@@ -35,7 +35,7 @@ Bool_t mergeFiles(std::vector<ktBinFile> &inputFiles, ktBinFile &outputFile)
 	return merger.Merge();
 }
 
-void decodeKtBin(const unsigned int binNumber, double &ktMin, double &ktMax)
+Bool_t decodeKtBin(const unsigned int binNumber, double &ktMin, double &ktMax)
 {
 	switch(binNumber)
 	{
@@ -76,12 +76,14 @@ void decodeKtBin(const unsigned int binNumber, double &ktMin, double &ktMax)
 			ktMax = 1.2;
 			break;
 		default:
-			std::cout << "\tUnknown kt bin: " << binNumber << std::endl;
+			std::cerr << "\tUnknown kt bin: " << binNumber << std::endl;
+			return kFALSE;
 			break;
 	}
+	return kTRUE;
 }
 
-void parseFileName(const char *fileName, double &ktMin, double &ktMax)
+Bool_t parseFileName(const char *fileName, double &ktMin, double &ktMax)
 {
 	unsigned int ktBin;
 	ktMin = 0;
@@ -90,10 +92,10 @@ void parseFileName(const char *fileName, double &ktMin, double &ktMax)
 	boost::regex pattern("(.*?)(\\d+)(.*?)");
 	boost::regex_match(basename((char*)fileName), matches, pattern);
 	ktBin = boost::lexical_cast<unsigned int>(matches[2]);
-	decodeKtBin(ktBin, ktMin, ktMax);
+	return decodeKtBin(ktBin, ktMin, ktMax);
 }
 
-Bool_t loadFileList(std::ifstream &inputFilesList, std::vector<ktBinFile> &inputFiles)
+Bool_t loadFileList(std::istream &inputFilesList, std::vector<ktBinFile> &inputFiles)
 {
 	char buffer[256];
 	std::string tmpfile(TMP_FILE);
@@ -107,33 +109,40 @@ Bool_t loadFileList(std::ifstream &inputFilesList, std::vector<ktBinFile> &input
     	inputFilesList >> buffer;
     	if(buffer[0] == '\0')
     		continue;
-   		std::cout << buffer;
+   		std::cerr << buffer;
 		if(checkFile(buffer))
     	{
-			std::cout << "\t\t[ OK ]" << std::endl;
+			std::cerr << "\t\t[ OK ]" << std::endl;
     		if(filesToMerge.size() == 0)
 			{	
-				parseFileName(buffer, ktBinMin, ktBinMax);
-				inputFiles.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
+				if(parseFileName(buffer, ktBinMin, ktBinMax))
+					inputFiles.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
 			}
 			else
 			{// merging
-				std::cout << "\t[ MERGING IN PROGRESS... ]" << std::endl;
+				std::cerr << "\t[ MERGING IN PROGRESS... ]" << std::endl;
 
-				parseFileName(buffer, ktBinMin, ktBinMax);
-				filesToMerge.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
-
-				boost::get<0>(outfile) = tmpfile;
-				boost::get<0>(outfile) += boost::lexical_cast<std::string>(counter++);
-				boost::get<0>(outfile) += ".root";
+				if(parseFileName(buffer, ktBinMin, ktBinMax))
+					filesToMerge.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
+				while(true)
+				{
+					boost::get<0>(outfile) = tmpfile;
+					boost::get<0>(outfile) += boost::lexical_cast<std::string>(counter++);
+					boost::get<0>(outfile) += ".root";
+					ifstream testfile(boost::get<0>(outfile).c_str());
+					if(testfile.good())
+						continue;
+					else
+						break;
+				}
 				if(!mergeFiles(filesToMerge,outfile))
 				{
-					std::cout << "Could not merge files: " << std::endl;
+					std::cerr << "Could not merge files: " << std::endl;
 					for(std::vector<ktBinFile>::iterator it = filesToMerge.begin() ; it != filesToMerge.end() ; ++it)
-						std::cout << "\t" << boost::get<0>(*it) << std::endl;
+						std::cerr << "\t" << boost::get<0>(*it) << std::endl;
 					return kFALSE;
 				}
-				std::cout << "Files merged into: " << boost::get<0>(outfile) << std::endl;
+				std::cerr << "Files merged into: " << boost::get<0>(outfile) << std::endl;
 				inputFiles.push_back(outfile);
 				filesToMerge.clear();
 			}
@@ -142,8 +151,28 @@ Bool_t loadFileList(std::ifstream &inputFilesList, std::vector<ktBinFile> &input
 		{	
 			parseFileName(buffer, ktBinMin, ktBinMax);
 			filesToMerge.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
-			std::cout << "\t\t[ REQUIRES MERGING ]" << std::endl;
+			std::cerr << "\t\t[ REQUIRES MERGING ]" << std::endl;
 		}
     }
     return kTRUE;
+}
+
+
+int main(int argc, char **argv)
+{
+	std::vector<ktBinFile> files;
+	if(argc < 1)
+	{	std::cerr << argv[0] << " " << "pp" << std::endl <<
+				"Pass to the argument pair identifier and file list to stdin" << std::endl;
+		return 1;
+	}
+	if(loadFileList(std::cin, files))
+	{
+		for(int i = 0, size = files.size(); i < size; ++i)
+			std::cout << boost::get<0>(files[i]) << " " << boost::get<1>(files[i]) << " " << boost::get<2>(files[i]) << std::endl;
+		return 0;
+	}
+	else
+		std::cerr << "Could not load file list" << std::endl;
+	return 1;
 }
