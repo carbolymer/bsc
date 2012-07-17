@@ -21,7 +21,7 @@ int main()
 			dRout, dRside, dRlong, dRlcms, dRinv, dlambda, mT;
 
 	// tuple filename, ktbinmin, ktbin max
-	string labels[nParticles] = {"K - K", "\\pi - \\pi", "p - p"};
+	string labels[nParticles] = {"K-K b2", "\\pi-\\pi b2", "p-p b2"};
 	string prefixes[nParticles] = {"kk", "pipi", "pp"};
 
 	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1300, 900);
@@ -52,11 +52,12 @@ int main()
 
 	for(int j = 0; j < nParticles; ++j)
 	{	
-		fillGraph(prefixes[j] + std::string("_Rout.data"), RoutGraph[j]);
-		fillGraph(prefixes[j] + std::string("_Rside.data"), RsideGraph[j]);
-		fillGraph(prefixes[j] + std::string("_Rlong.data"), RlongGraph[j]);
-		fillGraph(prefixes[j] + std::string("_Rinv.data"), RinvGraph[j]);
-		fillGraph(prefixes[j] + std::string("_Rlcms.data"), RlcmsGraph[j]);
+		std::cout << prefixes[j] << std::endl;
+		fillGraph(prefixes[j] + std::string("_Rout.out"), RoutGraph[j], j);
+		fillGraph(prefixes[j] + std::string("_Rside.out"), RsideGraph[j], j);
+		fillGraph(prefixes[j] + std::string("_Rlong.out"), RlongGraph[j], j);
+		fillGraph(prefixes[j] + std::string("_Rinv.out"), RinvGraph[j], j);
+		fillGraph(prefixes[j] + std::string("_Rlcms.out"), RlcmsGraph[j], j);
 
 		/* R_out */
 		canvasRcomponents->cd(1);
@@ -164,16 +165,17 @@ int main()
 	legendInv->Draw();
 
 	canvasRcomponents->SaveAs("output.png");
-
+	canvasRcomponents->SaveAs("output.root");
 	return 0;
 }
 
-void fillGraph(string fileName, TGraphErrors *graph)
+void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle)
 {
 	char buffer[256];
 	std::ifstream infile(fileName.c_str(), std::ifstream::in);
 	double kTmin, kTmax, R, dR, mT;
 	Int_t i;
+	std::cout << "mT\tR\tdR" << std::endl;
 	while(infile.good())
 	{
 		std::fill(buffer, buffer+255, 0);
@@ -187,7 +189,8 @@ void fillGraph(string fileName, TGraphErrors *graph)
     	infile >> dR;
 		mT = TMath::Sqrt(
 			TMath::Power((kTmin+kTmax)/2,2)
-			+ TMath::Power(particleMasses[i],2));
+			+ TMath::Power(particleMasses[iParticle],2));
+		std::cout << mT << "\t" << R << "\t+/- " << dR << std::endl;
 		graph->SetPoint(i, mT, R);
 		graph->SetPointError(i, 0, dR);
 	}

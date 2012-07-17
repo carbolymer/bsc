@@ -13,6 +13,6 @@
 #include <TGraphErrors.h>
 #include <TMath.h>
 
-void fillGraph(std::string fileName, TGraphErrors *graph);
+void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle);
 
 #endif

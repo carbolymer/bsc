@@ -1,4 +1,9 @@
 *.png
+*.out
+output.root
 /tmp/
-main
+fit1d
+fitsh
+merger
+plotter
 
