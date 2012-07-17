@@ -27,11 +27,11 @@ int main(int argc, char **argv)
   fitshanalyticaaabackshdircovcoulpars(argv[1], 
   Rout, Rside, Rlong, Rlcms, lambda,
   dRout, dRside, dRlong, dRlcms, dlambda);
-  std::ofstream RoutFile((std::string(argv[4]) + std::string("_Rout.data")).c_str(), std::ifstream::app);
-  std::ofstream RsideFile((std::string(argv[4]) + std::string("_Rside.data")).c_str(), std::ifstream::app);
-  std::ofstream RlongFile((std::string(argv[4]) + std::string("_Rlong.data")).c_str(), std::ifstream::app);
-  std::ofstream RlcmsFile((std::string(argv[4]) + std::string("_Rlcms.data")).c_str(), std::ifstream::app);
-  std::ofstream lambdaFile((std::string(argv[4]) + std::string("_lambda.data")).c_str(), std::ifstream::app);
+  std::ofstream RoutFile((std::string(argv[4]) + std::string("_Rout.out")).c_str(), std::ifstream::app);
+  std::ofstream RsideFile((std::string(argv[4]) + std::string("_Rside.out")).c_str(), std::ifstream::app);
+  std::ofstream RlongFile((std::string(argv[4]) + std::string("_Rlong.out")).c_str(), std::ifstream::app);
+  std::ofstream RlcmsFile((std::string(argv[4]) + std::string("_Rlcms.out")).c_str(), std::ifstream::app);
+  std::ofstream lambdaFile((std::string(argv[4]) + std::string("_lambda.out")).c_str(), std::ifstream::app);
 
   RoutFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
   RsideFile << argv[2] << "\t" << argv[3] << "\t" << Rside << "\t" << dRout << std::endl;

@@ -1,6 +1,7 @@
 filelist.*
 *.png
 *.out
+*.log
 output.root
 /tmp/
 fit1d

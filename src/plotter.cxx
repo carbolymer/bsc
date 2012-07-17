@@ -3,11 +3,13 @@
 using namespace std;
 
 const unsigned int nParticles = 3;
+const unsigned int nCentralities = 3;
+const unsigned int nPlots = nParticles*nCentralities;
 const unsigned int markerSize = 1;
 const Double_t mTRangeMin = 0;
 const Double_t mTRangeMax = 1.5;
 const Double_t RRangeMin = 2;
-const Double_t RRangeMax = 8.5;
+const Double_t RRangeMax = 10;
 
 const Double_t particleMasses[3] = { // in GeV / c^2
 	0.493677,// kaon
@@ -21,27 +23,37 @@ int main()
 			dRout, dRside, dRlong, dRlcms, dRinv, dlambda, mT;
 
 	// tuple filename, ktbinmin, ktbin max
-	string labels[nParticles] = {"K-K b2", "\\pi-\\pi b2", "p-p b2"};
-	string prefixes[nParticles] = {"kk", "pipi", "pp"};
+	string labels[nPlots] = 
+	{
+		"K-K b2", "\\pi-\\pi b2", "p-p b2",
+		"K-K b3", "\\pi-\\pi b3", "p-p b3",
+		"K-K b5", "\\pi-\\pi b5", "p-p b5"
+	};
+	string prefixes[nPlots] = 
+	{
+		"b2/kk", "b2/pipi", "b2/pp",
+		"b3/kk", "b3/pipi", "b3/pp",
+		"b5/kk", "b5/pipi", "b5/pp"
+	};
 
 	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1300, 900);
 	canvasRcomponents->Divide(3,2);
 	// TCanvas *canvasR = new TCanvas("canvasR", "R", 1400, 800);
 	// canvasRcomponents->Divide(2,3);
 	
-	TLegend *legendLCMS = new TLegend(0.8,0.75,0.9,0.9);
-	TLegend *legendInv = new TLegend(0.8,0.75,0.9,0.9);
-	TLegend *legendOut = new TLegend(0.8,0.75,0.9,0.9);
-	TLegend *legendSide = new TLegend(0.8,0.75,0.9,0.9);
-	TLegend *legendLong = new TLegend(0.8,0.75,0.9,0.9);
+	TLegend *legendLCMS = new TLegend(0.7,0.55,0.9,0.9);
+	TLegend *legendInv = new TLegend(0.7,0.55,0.9,0.9);
+	TLegend *legendOut = new TLegend(0.7,0.55,0.9,0.9);
+	TLegend *legendSide = new TLegend(0.7,0.55,0.9,0.9);
+	TLegend *legendLong = new TLegend(0.7,0.55,0.9,0.9);
 
-	TGraphErrors *RoutGraph[nParticles];
-	TGraphErrors *RsideGraph[nParticles];
-	TGraphErrors *RlongGraph[nParticles];
-	TGraphErrors *RlcmsGraph[nParticles];
-	TGraphErrors *RinvGraph[nParticles];
+	TGraphErrors *RoutGraph[nPlots];
+	TGraphErrors *RsideGraph[nPlots];
+	TGraphErrors *RlongGraph[nPlots];
+	TGraphErrors *RlcmsGraph[nPlots];
+	TGraphErrors *RinvGraph[nPlots];
 
-	for(int i = 0; i < nParticles; ++i)
+	for(int i = 0; i < nPlots; ++i)
 	{
 		RlcmsGraph[i] = new TGraphErrors();
 		RinvGraph[i] = new TGraphErrors();
@@ -50,9 +62,9 @@ int main()
 		RlongGraph[i] = new TGraphErrors();
 	}
 
-	for(int j = 0; j < nParticles; ++j)
+	for(int j = 0; j < nPlots; ++j)
 	{	
-		std::cout << prefixes[j] << std::endl;
+		std::cout << std::endl << "  ###  " << prefixes[j] << "  ###   " << std::endl;
 		fillGraph(prefixes[j] + std::string("_Rout.out"), RoutGraph[j], j);
 		fillGraph(prefixes[j] + std::string("_Rside.out"), RsideGraph[j], j);
 		fillGraph(prefixes[j] + std::string("_Rlong.out"), RlongGraph[j], j);
@@ -70,7 +82,7 @@ int main()
 		RoutGraph[j]->SetMarkerColor(1+j);
 		RoutGraph[j]->SetLineColor(1+j);
 		RoutGraph[j]->SetMarkerSize(markerSize);
-		RoutGraph[j]->SetMarkerStyle(25);
+		RoutGraph[j]->SetMarkerStyle(25+(int)(j/nCentralities));
 		RoutGraph[j]->SetLineWidth(1);
 		legendOut->AddEntry(RoutGraph[j], labels[j].c_str(),"P");
 
@@ -85,7 +97,7 @@ int main()
 		RsideGraph[j]->SetMarkerColor(1+j);
 		RsideGraph[j]->SetLineColor(1+j);
 		RsideGraph[j]->SetMarkerSize(markerSize);
-		RsideGraph[j]->SetMarkerStyle(25);
+		RsideGraph[j]->SetMarkerStyle(25+(int)(j/nCentralities));
 		RsideGraph[j]->SetLineWidth(1);
 		legendSide->AddEntry(RsideGraph[j], labels[j].c_str(),"P");
 
@@ -100,7 +112,7 @@ int main()
 		RlongGraph[j]->SetMarkerColor(1+j);
 		RlongGraph[j]->SetLineColor(1+j);
 		RlongGraph[j]->SetMarkerSize(markerSize);
-		RlongGraph[j]->SetMarkerStyle(25);
+		RlongGraph[j]->SetMarkerStyle(25+(int)(j/nCentralities));
 		RlongGraph[j]->SetLineWidth(1);
 		legendLong->AddEntry(RlongGraph[j], labels[j].c_str(),"P");
 
@@ -115,7 +127,7 @@ int main()
 		RlcmsGraph[j]->SetMarkerColor(1+j);
 		RlcmsGraph[j]->SetLineColor(1+j);
 		RlcmsGraph[j]->SetMarkerSize(markerSize);
-		RlcmsGraph[j]->SetMarkerStyle(25);
+		RlcmsGraph[j]->SetMarkerStyle(25+(int)(j/nCentralities));
 		RlcmsGraph[j]->SetLineWidth(1);
 		legendLCMS->AddEntry(RlcmsGraph[j], labels[j].c_str(),"P");
 
@@ -130,7 +142,7 @@ int main()
 		RinvGraph[j]->SetMarkerColor(1+j);
 		RinvGraph[j]->SetLineColor(1+j);
 		RinvGraph[j]->SetMarkerSize(markerSize);
-		RinvGraph[j]->SetMarkerStyle(25);
+		RinvGraph[j]->SetMarkerStyle(25+(int)(j/nCentralities));
 		RinvGraph[j]->SetLineWidth(1);
 		legendInv->AddEntry(RinvGraph[j], labels[j].c_str(),"P");
 	}
@@ -165,7 +177,6 @@ int main()
 	legendInv->Draw();
 
 	canvasRcomponents->SaveAs("output.png");
-	canvasRcomponents->SaveAs("output.root");
 	return 0;
 }
 
@@ -175,7 +186,7 @@ void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle
 	std::ifstream infile(fileName.c_str(), std::ifstream::in);
 	double kTmin, kTmax, R, dR, mT;
 	Int_t i;
-	std::cout << "mT\tR\tdR" << std::endl;
+	std::cout << std::endl << fileName << std::endl << "mT\tR\tdR" << std::endl;
 	while(infile.good())
 	{
 		std::fill(buffer, buffer+255, 0);

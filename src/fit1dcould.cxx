@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
   fit1dcould(argv[1], Rinv, dRinv);
 
-  std::ofstream RinvFile((std::string(argv[4]) + std::string("_Rinv.data")).c_str(), std::ifstream::app);
+  std::ofstream RinvFile((std::string(argv[4]) + std::string("_Rinv.out")).c_str(), std::ifstream::app);
 
   RinvFile << argv[2] << "\t" << argv[3] << "\t" << Rinv << "\t" << dRinv << std::endl;
   RinvFile.close();
