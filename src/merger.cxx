@@ -92,7 +92,7 @@ Bool_t parseFileName(const char *fileName, double &ktMin, double &ktMax)
 	boost::cmatch matches;
 	boost::regex pattern("(.*?)(\\d+)(.*?)");
 	boost::regex_match(basename((char*)fileName), matches, pattern);
-	ktBin = boost::lexical_cast<unsigned int>(matches[2]);
+	ktBin = boost::lexical_cast<unsigned long int>(matches[2]);
 	return decodeKtBin(ktBin, ktMin, ktMax);
 }
 
@@ -121,10 +121,12 @@ Bool_t loadFileList(std::istream &inputFilesList, std::vector<ktBinFile> &inputF
 			}
 			else
 			{// merging
-				std::cerr << "\t[ MERGING IN PROGRESS... ]" << std::endl;
-
 				if(parseFileName(buffer, ktBinMin, ktBinMax))
 					filesToMerge.push_back(boost::make_tuple(std::string(buffer), ktBinMin, ktBinMax));
+				else
+					continue;
+				std::cerr << "\t[ MERGING IN PROGRESS... ]" << std::endl;
+
 				while(true)
 				{
 					boost::get<0>(outfile) = tmpfile;
