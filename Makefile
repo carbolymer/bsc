@@ -4,9 +4,9 @@ DIR_OBJ=./tmp/
 DIR_BIN=./
 DIR_TMP=./tmp/
 
-CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O0 -g 
+CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O3 -g 
 LFLAGS=`root-config --libs` -lboost_regex -g
-OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o plotter.o merger.o
+OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o plotter.o merger.o siniukow2therminator.o
 
 # search paths
 vpath %.xx $(DIR_HPP)
@@ -34,6 +34,11 @@ plotter: plotter.o
 	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
 	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)plotter
 
+s2t: siniukow2therminator.o
+	echo -e "\033[01;33m[make]\033[00;32m Generating s2t..."	
+	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
+	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) /home/mgalazyn/workspace/Therminator2/build/obj/ParticleCoor.o -o $(DIR_BIN)s2t
+
 $(OBJS): %.o: %.cxx
 	@[ -d $(DIR_OBJ) ] || mkdir -p $(DIR_OBJ)
 	@[ -d $(DIR_TMP) ] || mkdir -p $(DIR_TMP)
@@ -47,6 +52,7 @@ clean:
 	rm -f ./fit1d
 	rm -f ./merger
 	rm -f ./plotter
+	rm -f ./s2t
 	echo -e "\033[01;33m[make]\033[00;32m All *.o and binary files removed.\033[00m"
 
 .PHONY: all clean

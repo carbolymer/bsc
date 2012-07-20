@@ -1,9 +1,11 @@
 filelist.*
+event*
 *.png
 *.out
 *.log
 output.root
 /tmp/
+s2t
 fit1d
 fitsh
 merger

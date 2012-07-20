@@ -3,7 +3,7 @@
 using namespace std;
 
 const unsigned int nParticles = 3;
-const unsigned int nCentralities = 3;
+const unsigned int nCentralities = 1;
 const unsigned int nPlots = nParticles*nCentralities;
 const unsigned int markerSize = 1;
 const Double_t mTRangeMin = 0;
@@ -25,6 +25,14 @@ int main()
 	// tuple filename, ktbinmin, ktbin max
 	string labels[nPlots] = 
 	{
+		"K-K b2", "\\pi-\\pi b2", "p-p b2"
+	};
+	string prefixes[nPlots] = 
+	{
+		"b2/kk", "b2/pipi", "b2/pp"
+	};
+/*	string labels[nPlots] = 
+	{
 		"K-K b2", "\\pi-\\pi b2", "p-p b2",
 		"K-K b3", "\\pi-\\pi b3", "p-p b3",
 		"K-K b5", "\\pi-\\pi b5", "p-p b5"
@@ -34,7 +42,7 @@ int main()
 		"b2/kk", "b2/pipi", "b2/pp",
 		"b3/kk", "b3/pipi", "b3/pp",
 		"b5/kk", "b5/pipi", "b5/pp"
-	};
+	};*/
 
 	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1300, 900);
 	canvasRcomponents->Divide(3,2);
@@ -177,6 +185,7 @@ int main()
 	legendInv->Draw();
 
 	canvasRcomponents->SaveAs("output.png");
+	canvasRcomponents->SaveAs("output.root");
 	return 0;
 }
 

@@ -6,7 +6,8 @@ Bool_t checkFile(const char *fileName)
 	if(file->IsZombie())
 		return kFALSE;
 	TH1D* cdenn1da = (TH1D*)  file->Get("cdenn1da");
-	if(cdenn1da->Integral(1,TMath::Nint((double)cdenn1da->GetMaximumBin()/5)) > 0)
+	// if there is a very little amount of entries in first 1/5th of histogram - reject
+	if(cdenn1da->Integral(1,TMath::Nint((double)cdenn1da->GetMaximumBin()/5))/cdenn1da->GetEntries() > 1e-5)
 		return kTRUE;
 	else
 		return kFALSE;
