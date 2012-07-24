@@ -6,7 +6,7 @@ DIR_TMP=./tmp/
 
 CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O3 -g 
 LFLAGS=`root-config --libs` -lboost_regex -g
-OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o plotter.o merger.o siniukow2therminator.o
+OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o merger.o siniukow2therminator.o
 
 # search paths
 vpath %.xx $(DIR_HPP)
@@ -29,10 +29,10 @@ fit1d: fit1dcould.o
 	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
 	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)fit1d
 
-plotter: plotter.o
-	echo -e "\033[01;33m[make]\033[00;32m Generating plotter..."	
-	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
-	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)plotter
+plots:
+	echo -e "\033[01;33m[make]\033[00;32m Making plots..."
+	root -l -b -q macros/plotter.C
+	root -l -b -q macros/plotter_lcms.C
 
 s2t: siniukow2therminator.o
 	echo -e "\033[01;33m[make]\033[00;32m Generating s2t..."	

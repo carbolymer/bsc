@@ -1,15 +1,18 @@
-#include "plotter.hxx"
-
 using namespace std;
 
-const unsigned int nParticles = 3;
-const unsigned int nCentralities = 3;
-const unsigned int nPlots = nParticles*nCentralities;
-const Double_t markerSize = 1.6;
-const Double_t mTRangeMin = 0;
-const Double_t mTRangeMax = 1.5;
-const Double_t RRangeMin = 1.6;
-const Double_t RRangeMax = 11;
+const unsigned int 
+	nParticles = 3,
+	nCentralities = 1,
+	nPlots = nParticles*nCentralities;
+
+const Double_t
+		titleSize = 0.06,
+		labelSize = 0.04,
+		markerSize = 1.6,
+		mTRangeMin = 0,
+		mTRangeMax = 1.5,
+		RRangeMin = 1.6,
+		RRangeMax = 11;
 
 const Double_t particleMasses[3] = { // in GeV / c^2
 	0.493677,// kaon
@@ -20,44 +23,55 @@ const Double_t particleMasses[3] = { // in GeV / c^2
 const int colors[9] = {1,2,4,6,8,9,13,28,46};
 const int markers[9] = {20,21,22,23,29,33,34};
 
-int main()
+void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle, bool isInvariant = kFALSE);
+void plot(string *labels, string *prefixes, const char *fileName);
+
+int plotter_lcms()
 {
+	string labels[nPlots] = 
+	{
+		"K-K b5", "\\pi-\\pi b5", "p-p b5"
+	};
+
+	string prefixes[nPlots] = 
+	{
+		"b5/kk", "b5/pipi", "b5/pp"
+	};
+	plot(labels,prefixes,"b5");
+
+	labels[0] = "K-K b3";
+	labels[1] = "\\pi-\\pi b3";
+	labels[2] = "p-p b3";
+	prefixes[0] = "b3/kk";
+	prefixes[1] = "b3/pipi";
+	prefixes[2] = "b3/pp";
+	plot(labels,prefixes,"b3");
+
+	labels[0] = "K-K b2";
+	labels[1] = "\\pi-\\pi b2";
+	labels[2] = "p-p b2";
+	prefixes[0] = "b2/kk";
+	prefixes[1] = "b2/pipi";
+	prefixes[2] = "b2/pp";
+	plot(labels,prefixes,"b2");
+}
+
+void plot(string *labels, string *prefixes, const char *fileName)
+{
+
 	Double_t Rout, Rside, Rlong, Rlcms, Rinv, lambda,
 			dRout, dRside, dRlong, dRlcms, dRinv, dlambda, mT;
 
 	int markerColor, markerStyle;
 
-	// string labels[nPlots] = 
-	// {
-	// 	"K-K b5", "\\pi-\\pi b5", "p-p b5"
-	// };
-
-	// string prefixes[nPlots] = 
-	// {
-	// 	"b5/kk", "b5/pipi", "b5/pp"
-	// };
-
-	string labels[nPlots] = 
-	{
-		"K-K b2", "\\pi-\\pi b2", "p-p b2",
-		"K-K b3", "\\pi-\\pi b3", "p-p b3",
-		"K-K b5", "\\pi-\\pi b5", "p-p b5"
-	};
-	string prefixes[nPlots] = 
-	{
-		"b2/kk", "b2/pipi", "b2/pp",
-		"b3/kk", "b3/pipi", "b3/pp",
-		"b5/kk", "b5/pipi", "b5/pp"
-	};
-
-	TCanvas *canvasRcomponents = new TCanvas("canvasRcomponents", "R_components", 1300, 900);
-	canvasRcomponents->Divide(3,2);
+	TCanvas *canvasRcomponents = new TCanvas(fileName, (string(fileName)+" plot").c_str(), 1300, 900);
+	canvasRcomponents->Divide(2,2);
 	
-	TLegend *legendLCMS = new TLegend(0.65,0.55,0.9,0.9);
-	TLegend *legendInv = new TLegend(0.65,0.55,0.9,0.9);
-	TLegend *legendOut = new TLegend(0.65,0.55,0.9,0.9);
-	TLegend *legendSide = new TLegend(0.65,0.55,0.9,0.9);
-	TLegend *legendLong = new TLegend(0.65,0.55,0.9,0.9);
+	TLegend *legendLCMS = new TLegend(0.75,0.65,0.9,0.9);
+	TLegend *legendInv = new TLegend(*legendLCMS);
+	TLegend *legendOut = new TLegend(*legendLCMS);
+	TLegend *legendSide = new TLegend(*legendLCMS);
+	TLegend *legendLong = new TLegend(*legendLCMS);
 
 	TGraphErrors *RoutGraph[nPlots];
 	TGraphErrors *RsideGraph[nPlots];
@@ -74,17 +88,17 @@ int main()
 		RlongGraph[i] = new TGraphErrors();
 	}
 
-	for(int j = 0; j < nPlots; ++j)
+	for(int j = 0; j < nParticles; ++j)
 	{	
 		markerStyle = markers[(int)(j/nCentralities)];
 		markerColor = colors[j];
 
 		std::cout << std::endl << "  ###  " << prefixes[j] << "  ###   " << std::endl;
-		fillGraph(prefixes[j] + std::string("_Rout.out"), RoutGraph[j], j%3);
-		fillGraph(prefixes[j] + std::string("_Rside.out"), RsideGraph[j], j%3);
-		fillGraph(prefixes[j] + std::string("_Rlong.out"), RlongGraph[j], j%3);
-		fillGraph(prefixes[j] + std::string("_Rinv.out"), RinvGraph[j], j%3, kTRUE);
-		fillGraph(prefixes[j] + std::string("_Rlcms.out"), RlcmsGraph[j], j%3);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rout.out"), RoutGraph[j], j%3);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rside.out"), RsideGraph[j], j%3);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlong.out"), RlongGraph[j], j%3);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rinv.out"), RinvGraph[j], j%3, kTRUE);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlcms.out"), RlcmsGraph[j], j%3);
 
 		/* R_out */
 		canvasRcomponents->cd(1);
@@ -99,6 +113,10 @@ int main()
 		RoutGraph[j]->SetMarkerSize(markerSize);
 		RoutGraph[j]->SetMarkerStyle(markerStyle);
 		RoutGraph[j]->SetLineWidth(1);
+		RoutGraph[j]->GetXaxis()->SetTitleSize(titleSize);
+		RoutGraph[j]->GetXaxis()->SetLabelSize(labelSize);
+		RoutGraph[j]->GetYaxis()->SetTitleSize(titleSize);
+		RoutGraph[j]->GetYaxis()->SetLabelSize(labelSize);
 		legendOut->AddEntry(RoutGraph[j], labels[j].c_str(),"P");
 
 		/* R_side */
@@ -114,6 +132,10 @@ int main()
 		RsideGraph[j]->SetMarkerSize(markerSize);
 		RsideGraph[j]->SetMarkerStyle(markerStyle);
 		RsideGraph[j]->SetLineWidth(1);
+		RsideGraph[j]->GetXaxis()->SetTitleSize(titleSize);
+		RsideGraph[j]->GetXaxis()->SetLabelSize(labelSize);
+		RsideGraph[j]->GetYaxis()->SetTitleSize(titleSize);
+		RsideGraph[j]->GetYaxis()->SetLabelSize(labelSize);
 		legendSide->AddEntry(RsideGraph[j], labels[j].c_str(),"P");
 
 		/* R_long */
@@ -129,6 +151,10 @@ int main()
 		RlongGraph[j]->SetMarkerSize(markerSize);
 		RlongGraph[j]->SetMarkerStyle(markerStyle);
 		RlongGraph[j]->SetLineWidth(1);
+		RlongGraph[j]->GetXaxis()->SetTitleSize(titleSize);
+		RlongGraph[j]->GetXaxis()->SetLabelSize(labelSize);
+		RlongGraph[j]->GetYaxis()->SetTitleSize(titleSize);
+		RlongGraph[j]->GetYaxis()->SetLabelSize(labelSize);
 		legendLong->AddEntry(RlongGraph[j], labels[j].c_str(),"P");
 
 		/* R_LCMS */
@@ -144,56 +170,40 @@ int main()
 		RlcmsGraph[j]->SetMarkerSize(markerSize);
 		RlcmsGraph[j]->SetMarkerStyle(markerStyle);
 		RlcmsGraph[j]->SetLineWidth(1);
+		RlcmsGraph[j]->GetXaxis()->SetTitleSize(titleSize);
+		RlcmsGraph[j]->GetXaxis()->SetLabelSize(labelSize);
+		RlcmsGraph[j]->GetYaxis()->SetTitleSize(titleSize);
+		RlcmsGraph[j]->GetYaxis()->SetLabelSize(labelSize);
 		legendLCMS->AddEntry(RlcmsGraph[j], labels[j].c_str(),"P");
 
-		/* R_invariant */
-		canvasRcomponents->cd(5);
-		RinvGraph[j]->GetYaxis()->SetRangeUser(RRangeMin,RRangeMax);
-		RinvGraph[j]->GetXaxis()->SetLimits(mTRangeMin,mTRangeMax);
-		if(j == 0)
-			RinvGraph[j]->Draw("A*");
-		else
-			RinvGraph[j]->Draw("SAMEP*");
-		RinvGraph[j]->SetMarkerColor(markerColor);
-		RinvGraph[j]->SetLineColor(markerColor);
-		RinvGraph[j]->SetMarkerSize(markerSize);
-		RinvGraph[j]->SetMarkerStyle(markerStyle);
-		RinvGraph[j]->SetLineWidth(1);
-		legendInv->AddEntry(RinvGraph[j], labels[j].c_str(),"P");
 	}
 	/* R_out */
-	RoutGraph[0]->SetTitle("R_{out};m_{T};R_{out}(m_{T})");
+	RoutGraph[0]->SetTitle(";m_{T} (GeV/c^{2});R_{out} (fm)");
 	legendOut->SetFillColor(0);
 	canvasRcomponents->cd(1);
 	legendOut->Draw();
 
 	/* R_side */
-	RsideGraph[0]->SetTitle("R_{side};m_{T};R_{side}(m_{T})");
+	RsideGraph[0]->SetTitle(";m_{T} (GeV/c^{2});R_{side} (fm)");
 	legendSide->SetFillColor(0);
 	canvasRcomponents->cd(2);
 	legendSide->Draw();
 
 	/* R_long */
-	RlongGraph[0]->SetTitle("R_{long};m_{T};R_{long}(m_{T})");
+	RlongGraph[0]->SetTitle(";m_{T} (GeV/c^{2});R_{long} (fm)");
 	legendLong->SetFillColor(0);
 	canvasRcomponents->cd(3);
 	legendLong->Draw();
 
 	/* R_LCMS */
-	RlcmsGraph[0]->SetTitle("R_{LCMS};m_{T};R_{LCMS}(m_{T})");
+	RlcmsGraph[0]->SetTitle(";m_{T} (GeV/c^{2});R_{LCMS} (fm)");
 	legendLCMS->SetFillColor(0);
 	canvasRcomponents->cd(4);
 	legendLCMS->Draw();
 
-	/* R_invariant */
-	RinvGraph[0]->SetTitle("R_{inv}/[(\\sqrt{\\gamma}+2)/3]^{1/2};m_{T} (GeV/c^2);R_{inv}(m_{T}) (fm)");
-	legendInv->SetFillColor(0);
-	canvasRcomponents->cd(5);
-	legendInv->Draw();
-
-	canvasRcomponents->SaveAs("output.png");
-	canvasRcomponents->SaveAs("output.root");
-	return 0;
+	char file[256] = (string("output/")+fileName+string(".png")).c_str();
+	canvasRcomponents->SaveAs(file);
+	delete canvasRcomponents;
 }
 
 void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle, bool isInvariant)
@@ -205,12 +215,14 @@ void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle
 	std::cout << std::endl << fileName << std::endl << "mT\tR\tdR" << std::endl;
 	while(infile.good())
 	{
-		std::fill(buffer, buffer+255, 0);
+		for(int i=0; i < 256; ++i)
+			buffer[i] == '\0';
     	infile >> buffer;
     	if(buffer[0] == '\0')
     		continue;
     	i = graph->GetN();
-    	kTmin = boost::lexical_cast<double>(buffer);
+
+    	stringstream(buffer) >> kTmin;
     	infile >> kTmax;
     	infile >> R;
     	infile >> dR;
