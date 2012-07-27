@@ -30,7 +30,7 @@ int plotter_lcms()
 {
 	string labels[nPlots] = 
 	{
-		"K-K b5", "\\pi-\\pi b5", "p-p b5"
+		"K-K b = 5 fm", "\\pi-\\pi b = 5 fm", "p-p b = 5 fm"
 	};
 
 	string prefixes[nPlots] = 
@@ -39,17 +39,17 @@ int plotter_lcms()
 	};
 	plot(labels,prefixes,"b5");
 
-	labels[0] = "K-K b3";
-	labels[1] = "\\pi-\\pi b3";
-	labels[2] = "p-p b3";
+	labels[0] = "K-K b = 3 fm";
+	labels[1] = "\\pi-\\pi b = 3 fm";
+	labels[2] = "p-p b = 3 fm";
 	prefixes[0] = "b3/kk";
 	prefixes[1] = "b3/pipi";
 	prefixes[2] = "b3/pp";
 	plot(labels,prefixes,"b3");
 
-	labels[0] = "K-K b2";
-	labels[1] = "\\pi-\\pi b2";
-	labels[2] = "p-p b2";
+	labels[0] = "K-K b = 2 fm";
+	labels[1] = "\\pi-\\pi b = 2 fm";
+	labels[2] = "p-p b = 2 fm";
 	prefixes[0] = "b2/kk";
 	prefixes[1] = "b2/pipi";
 	prefixes[2] = "b2/pp";
@@ -216,7 +216,7 @@ void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle
 	while(infile.good())
 	{
 		for(int i=0; i < 256; ++i)
-			buffer[i] == '\0';
+			buffer[i] = '\0';
     	infile >> buffer;
     	if(buffer[0] == '\0')
     		continue;

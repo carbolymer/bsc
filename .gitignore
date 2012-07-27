@@ -10,4 +10,5 @@ fit1d
 fitsh
 merger
 plotter
-
+canfit.root
+ofit.root

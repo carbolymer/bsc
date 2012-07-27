@@ -33,7 +33,7 @@ bool fit1dcould(const char *fileName, Double_t &Rinv, Double_t &RinvE)
   TH1D *den = (TH1D*) inFile->Get("cdenn1da");
   ratq->Divide(den);
 
-  TFile *ifk = new TFile("ffcomp.root");
+  TFile *ifk = new TFile("data/ffcomp.root");
   calckcoulggg = (TGraph *) ifk->Get("KCoulomb");
 
   TF1 *funq = new TF1("funq",fungek,0.0,1.0,7);

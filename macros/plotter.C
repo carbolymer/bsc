@@ -245,7 +245,7 @@ void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle
 	while(infile.good())
 	{
 		for(int i=0; i < 256; ++i)
-			buffer[i] == '\0';
+			buffer[i] = '\0';
     	infile >> buffer;
     	if(buffer[0] == '\0')
     		continue;

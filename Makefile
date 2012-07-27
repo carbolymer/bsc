@@ -12,7 +12,7 @@ OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o merger.o siniukow2therm
 vpath %.xx $(DIR_HPP)
 vpath %.cxx $(DIR_CPP)
 
-all: fitsh merger fit1d plotter
+all: fitsh merger fit1d
 
 fitsh: fitshanalyticaaabackshdircovcoulpars.o
 	echo -e "\033[01;33m[make]\033[00;32m Generating fitsh..."
@@ -51,7 +51,6 @@ clean:
 	rm -f ./fitsh
 	rm -f ./fit1d
 	rm -f ./merger
-	rm -f ./plotter
 	rm -f ./s2t
 	echo -e "\033[01;33m[make]\033[00;32m All *.o and binary files removed.\033[00m"
 

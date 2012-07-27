@@ -1122,8 +1122,8 @@ void fitshanalyticreal( char *pref,
   c20->GetYaxis()->SetLabelSize(0.05);
   // c20->SetMinimum(-0.149);
   // c20->SetMaximum(0.149);
-  c20->SetMinimum(-0.04);
-  c20->SetMaximum(0.04);
+  c20->SetMinimum(-0.07);
+  c20->SetMaximum(0.07);
   c20->Draw();
   //  f20->Draw("");
   gr20L->Draw("CP");
@@ -1146,8 +1146,8 @@ void fitshanalyticreal( char *pref,
   c22->GetYaxis()->SetLabelSize(0.05);
   // c22->SetMinimum(-0.149);
   // c22->SetMaximum(0.149);
-  c22->SetMinimum(-0.04);
-  c22->SetMaximum(0.04);
+  c22->SetMinimum(-0.05);
+  c22->SetMaximum(0.05);
   c22->Draw();
   //  f22->Draw("");
   gr22L->Draw("CP");
@@ -1187,7 +1187,7 @@ bool fitshanalyticaaabackshdircovcoulpars(const char *filname,
   Double_t &Rout, Double_t &Rside, Double_t &Rlong, Double_t &Rinv, Double_t &lambda,
    Double_t &dRout, Double_t &dRside, Double_t &dRlong, Double_t &dRinv, Double_t &dlambda) 
 {
-  TFile *infilek = new TFile("ffcomp.root");
+  TFile *infilek = new TFile("data/ffcomp.root");
   if(infilek->IsZombie())
   {
     cout << "could not load ffcomp.root" << endl;
@@ -1197,7 +1197,7 @@ bool fitshanalyticaaabackshdircovcoulpars(const char *filname,
 
   ifstream *inf;
 
-  inf = new ifstream("fitpar.in");
+  inf = new ifstream("data/fitpar.in");
   if(inf->fail())
   {
     cout << "loading parameter file failed" << endl;
