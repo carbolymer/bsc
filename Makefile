@@ -8,6 +8,7 @@ CXXFLAGS=`root-config --cflags` -I$(DIR_HPP) -O3 -g
 LFLAGS=`root-config --libs` -lboost_regex -g
 OBJS=fit1dcould.o fitshanalyticaaabackshdircovcoulpars.o merger.o siniukow2therminator.o
 
+
 # search paths
 vpath %.xx $(DIR_HPP)
 vpath %.cxx $(DIR_CPP)
