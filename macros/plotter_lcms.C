@@ -30,12 +30,13 @@ int plotter_lcms()
 {
 	string labels[nPlots] = 
 	{
-		"K-K b = 5 fm", "\\pi-\\pi b = 5 fm", "p-p b = 5 fm"
+		"K-K bb3m6", "\\pi-\\pi bb3m6", "p-p bb3m6"
 	};
 
 	string prefixes[nPlots] = 
 	{
-		"b5/kk", "b5/pipi", "b5/pp"
+		// "b5/kk", "b5/pipi", "b5/pp"
+		"bb3m6/kk", "bb3m6/pipi", "bb3m6/pp"
 	};
 	plot(labels,prefixes,"b5");
 
