@@ -33,7 +33,7 @@ fit1d: fit1dcould.o
 plots:
 	echo -e "\033[01;33m[make]\033[00;32m Making plots..."
 	root -l -b -q macros/plotter.C
-	root -l -b -q macros/plotter_lcms.C
+	# root -l -b -q macros/plotter_lcms.C
 
 s2t: siniukow2therminator.o
 	echo -e "\033[01;33m[make]\033[00;32m Generating s2t..."	

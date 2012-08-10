@@ -6,7 +6,7 @@ const unsigned int
 	nPlots = nParticles*nCentralities;
 
 const Double_t
-		titleSize = 0.06,
+		titleSize = 0.08,
 		labelSize = 0.04,
 		markerSize = 1.6,
 		mTRangeMin = 0,
@@ -30,16 +30,15 @@ int plotter_lcms()
 {
 	string labels[nPlots] = 
 	{
-		"K-K bb3m6", "\\pi-\\pi bb3m6", "p-p bb3m6"
+		"K-K b = 5 fm", "\\pi-\\pi b = 5 fm", "p-p b = 5 fm"
 	};
 
 	string prefixes[nPlots] = 
 	{
-		// "b5/kk", "b5/pipi", "b5/pp"
-		"bb3m6/kk", "bb3m6/pipi", "bb3m6/pp"
+		"b5/kk", "b5/pipi", "b5/pp"
 	};
 	plot(labels,prefixes,"b5");
-
+	
 	labels[0] = "K-K b = 3 fm";
 	labels[1] = "\\pi-\\pi b = 3 fm";
 	labels[2] = "p-p b = 3 fm";
@@ -55,6 +54,14 @@ int plotter_lcms()
 	prefixes[1] = "b2/pipi";
 	prefixes[2] = "b2/pp";
 	plot(labels,prefixes,"b2");
+
+	labels[0] = "K-K bb3m6";
+	labels[1] = "\\pi-\\pi bb3m6";
+	labels[2] = "p-p bb3m6";
+	prefixes[0] = "bb3m6/kk";
+	prefixes[1] = "bb3m6/pipi";
+	prefixes[2] = "bb3m6/pp";
+	plot(labels,prefixes,"bb3m6");
 }
 
 void plot(string *labels, string *prefixes, const char *fileName)

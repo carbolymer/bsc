@@ -2,8 +2,7 @@
 
 CENTRALITY=bb3m6
 
-# EVENT_DIR=/mnt/store/mgalazyn/lhyqid3v_LHCPbPb_2760_$CENTRALITY/
-EVENT_DIR=/data/disk1/Models/samples/bb3m6/
+EVENT_DIR=/home/mgalazyn/workspace/tpi_output/bb3m6
 
 echo "Running for centrality $CENTRALITY"
 
@@ -11,6 +10,14 @@ rm -f data/$CENTRALITY/kk*.out
 rm -f data/$CENTRALITY/pipi*.out
 rm -f data/$CENTRALITY/pp*.out
 rm -f log/*.log
+
+if [ "$1" != "" ]; then
+	EVENT_DIR=$1
+fi
+
+if [ "$2" != "" ]; then
+	CENTRALITY=$2
+fi
 
 if [ ! -d data/$CENTRALITY ] ; then
 	mkdir data/$CENTRALITY
@@ -22,7 +29,6 @@ IFS="
 "
 
 # Kaons
-# find $1 -name "outfilekkcf*" -type f | sort | ./merger 1> filelist.kk.in
 find $EVENT_DIR -name "outfilekkcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.kk.in
 FILES=`cat data/$CENTRALITY/filelist.kk.in`
 for parameter in $FILES
@@ -35,20 +41,18 @@ do
 done
 
 # # Pions
-# find $1 -name "outfilecf*" -type f | sort | ./merger 1> data/filelist.pipi.in
-# find $EVENT_DIR -name "outfilecf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pipi.in
-# FILES=`cat data/$CENTRALITY/filelist.pipi.in`
-# for parameter in $FILES
-# do
-# 	IFS=$IFS_BAK
-# 	./fitsh $parameter data/$CENTRALITY/pipi &>> log/pipi_fitsh.log &
-# 	./fit1d $parameter data/$CENTRALITY/pipi &>> log/pipi_fit1d.log &
-# 	IFS="
-# "
-# done
+find $EVENT_DIR -name "outfilecf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pipi.in
+FILES=`cat data/$CENTRALITY/filelist.pipi.in`
+for parameter in $FILES
+do
+	IFS=$IFS_BAK
+	./fitsh $parameter data/$CENTRALITY/pipi &>> log/pipi_fitsh.log &
+	./fit1d $parameter data/$CENTRALITY/pipi &>> log/pipi_fit1d.log &
+	IFS="
+"
+done
 
 # Protons
-# find $1 -name "outfileppcf*" -type f | sort | ./merger 1> data/filelist.pp.in
 find $EVENT_DIR -name "outfileppcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pp.in
 FILES=`cat data/$CENTRALITY/filelist.pp.in`
 for parameter in $FILES
