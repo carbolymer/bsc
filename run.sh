@@ -4,13 +4,8 @@ CENTRALITY=bb3m6
 
 EVENT_DIR=/home/mgalazyn/workspace/tpi_output/bb3m6
 
-echo "Running for centrality $CENTRALITY"
 
-rm -f data/$CENTRALITY/kk*.out
-rm -f data/$CENTRALITY/pipi*.out
-rm -f data/$CENTRALITY/pp*.out
-rm -f log/*.log
-
+# parsing command line arguments
 if [ "$1" != "" ]; then
 	EVENT_DIR=$1
 fi
@@ -18,6 +13,14 @@ fi
 if [ "$2" != "" ]; then
 	CENTRALITY=$2
 fi
+
+# preparing space for new data
+rm -f data/$CENTRALITY/kk*.out
+rm -f data/$CENTRALITY/pipi*.out
+rm -f data/$CENTRALITY/pp*.out
+rm -f log/*.log
+
+echo -e "\nRunning for centrality $CENTRALITY\n"
 
 if [ ! -d data/$CENTRALITY ] ; then
 	mkdir data/$CENTRALITY
@@ -71,8 +74,8 @@ IFS_BAK=
 
 echo "Waiting for all fitting processes..."
 while [ `ps aux | grep [f]it | wc -l` != 0 ]; do
-	sleep 0.3
+	sleep 0.5
 done
 echo "Plotting..."
-# make plots
+make plots
 echo -e "\n\nDONE"
