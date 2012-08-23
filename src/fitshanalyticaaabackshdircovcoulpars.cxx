@@ -7,6 +7,9 @@ double gLmS, gRoS, gRsS, gRlS;
 
 Int_t dofix[20];
 
+string plotShName;
+string configShName;
+
 Double_t parsg[20];
 Double_t parmin[20];
 Double_t parmax[20];
@@ -24,7 +27,10 @@ int main(int argc, char **argv)
   }
   std::string pairType(argv[3]);
 
-  fitshanalyticaaabackshdircovcoulpars(argv[1], 
+  plotShName = string(argv[4]) + string(argv[2]) + string("fitsh.png");
+  configShName = string(argv[4]) + string(argv[2]) + string("fitsh.conf");
+
+  fitshanalyticaaabackshdircovcoulpars(argv[1],
   Rout, Rside, Rlong, Rlcms, lambda,
   dRout, dRside, dRlong, dRlcms, dlambda);
   std::ofstream RoutFile((std::string(argv[4]) + std::string("_Rout.out")).c_str(), std::ifstream::app);
@@ -1154,32 +1160,32 @@ void fitshanalyticreal( char *pref,
   gr22S->Draw("CP");
   gr22A->Draw("CP");
 
-  canfit->SaveAs("canfit.root");
-  canfit->SaveAs("canfit.png");
+  // canfit->SaveAs("canfit.root");
+  canfit->SaveAs(plotShName.c_str());
 
-  TFile *ofit = new TFile("ofit.root","RECREATE");
-  ofit->cd();
-  c00->Write();
-  gr00L->SetName("gr00L");
-  gr00L->Write();
-  gr00S->SetName("gr00S");
-  gr00S->Write();
-  gr00A->SetName("gr00A");
-  gr00A->Write();
-  c20->Write();
-  gr20L->SetName("gr20L");
-  gr20L->Write();
-  gr20S->SetName("gr20S");
-  gr20S->Write();
-  gr20A->SetName("gr20A");
-  gr20A->Write();
-  c22->Write();
-  gr22L->SetName("gr22L");
-  gr22L->Write();
-  gr22S->SetName("gr22S");
-  gr22S->Write();
-  gr22A->SetName("gr22A");
-  gr22A->Write();
+  // TFile *ofit = new TFile("ofit.root","RECREATE");
+  // ofit->cd();
+  // c00->Write();
+  // gr00L->SetName("gr00L");
+  // gr00L->Write();
+  // gr00S->SetName("gr00S");
+  // gr00S->Write();
+  // gr00A->SetName("gr00A");
+  // gr00A->Write();
+  // c20->Write();
+  // gr20L->SetName("gr20L");
+  // gr20L->Write();
+  // gr20S->SetName("gr20S");
+  // gr20S->Write();
+  // gr20A->SetName("gr20A");
+  // gr20A->Write();
+  // c22->Write();
+  // gr22L->SetName("gr22L");
+  // gr22L->Write();
+  // gr22S->SetName("gr22S");
+  // gr22S->Write();
+  // gr22A->SetName("gr22A");
+  // gr22A->Write();
 #endif
 }
 
@@ -1195,9 +1201,15 @@ bool fitshanalyticaaabackshdircovcoulpars(const char *filname,
   }
   grkcoul = (TGraph *) infilek->Get("KCoulomb");
 
-  ifstream *inf;
+  ifstream
+    *inf = 0, 
+    *customfile = 0;
 
-  inf = new ifstream("data/fitpar.in");
+  customfile = new ifstream(configShName.c_str());
+  if(customfile->fail())
+    inf = new ifstream("data/fitsh.conf");
+  else
+    inf = customfile;
   if(inf->fail())
   {
     cout << "loading parameter file failed" << endl;

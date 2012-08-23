@@ -3,12 +3,16 @@
 #include <string>
 #include <sstream>
 #include <TCanvas.h>
+#include <TF1.h>
 #include <TMath.h>
 #include <TStyle.h>
 #include <TRandom.h>
-#include "../src/Multiplot.cxx"
+#include "../src/MultiPlot.cxx"
+#include "../src/MultiFitPlot.cxx"
 
 #define DEBUG false
+
+// TODO - POLYMORPHYSM
 
 const Double_t particleMasses[3] = { // in GeV / c^2
 	0.493677,// kaon
@@ -16,10 +20,11 @@ const Double_t particleMasses[3] = { // in GeV / c^2
 	0.938272029 // proton
 };
 
-const int numberOfCentralities = 6;
+const int numberOfCentralities = 7;
 
-void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *fileName, Multiplot &Rinv, Multiplot &Rlcms);
-void createPrfPlot(Multiplot Rinv[], Multiplot Rlcms[], int nCentralities);
+void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *fileName, MultiFitPlot &Rinv, MultiFitPlot &Rlcms);
+void createPrfPlotAllInONe(MultiFitPlot Rinv[], MultiFitPlot Rlcms[], int nCentralities);
+void createPrfPlots(MultiFitPlot Rinv[], MultiFitPlot Rlcms[], int nCentralities);
 void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle, bool isInvariant = kFALSE);
 
 int plotter()
@@ -28,14 +33,18 @@ int plotter()
 	gStyle->SetLabelSize(0.06, "xyz");
 	gStyle->SetPadTopMargin(0.023);
 	gStyle->SetPadBottomMargin(0.16);
-	gStyle->SetPadLeftMargin(0.11);
+	gStyle->SetPadLeftMargin(0.14);
 	gStyle->SetPadRightMargin(0.001);
+
+	MultiFitPlot::defaultFunction  = new TF1("fit","[0]*TMath::Power(x,-[1])", 0.1, 1.5);
+	MultiFitPlot::defaultFunction->SetParameter(0,1);
+	MultiFitPlot::defaultFunction->SetParameter(1,1);
 
 	std::string prefixes[graphCount];
 	std::string graphNames[graphCount];
 
-	Multiplot Rinv[numberOfCentralities];
-	Multiplot Rlcms[numberOfCentralities];
+	MultiFitPlot Rinv[numberOfCentralities];
+	MultiFitPlot Rlcms[numberOfCentralities];
 
 	prefixes[0] = "b2/kk";
 	prefixes[1] = "b2/pipi";
@@ -64,28 +73,36 @@ int plotter()
 	prefixes[0] = "bb3m6/kk";
 	prefixes[1] = "bb3m6/pipi";
 	prefixes[2] = "bb3m6/pp";
-	graphNames[0] = "K-K bb3m6";
-	graphNames[1] = "\\pi-\\pi bb3m6";
-	graphNames[2] = "p-p bb3m6";
-	createLcmsPlot(graphNames, prefixes, "bb3m6", Rinv[3], Rlcms[3]);
+	graphNames[0] = "K-K EPOS";
+	graphNames[1] = "\\pi-\\pi EPOS";
+	graphNames[2] = "p-p EPOS";
+	createLcmsPlot(graphNames, prefixes, "bb3m6_EPOS", Rinv[3], Rlcms[3]);
 
 	prefixes[0] = "lhc0005/kk";
 	prefixes[1] = "lhc0005/pipi";
 	prefixes[2] = "lhc0005/pp";
-	graphNames[0] = "K-K lhc0005";
-	graphNames[1] = "\\pi-\\pi lhc0005";
-	graphNames[2] = "p-p lhc0005";
-	createLcmsPlot(graphNames, prefixes, "lhc0005", Rinv[4], Rlcms[4]);
+	graphNames[0] = "K-K 0-5%";
+	graphNames[1] = "\\pi-\\pi 0-5%";
+	graphNames[2] = "p-p 0-5%";
+	createLcmsPlot(graphNames, prefixes, "lhc0005_hHKM", Rinv[4], Rlcms[4]);
 
 	prefixes[0] = "lhc1020/kk";
 	prefixes[1] = "lhc1020/pipi";
 	prefixes[2] = "lhc1020/pp";
-	graphNames[0] = "K-K lhc1020";
-	graphNames[1] = "\\pi-\\pi lhc1020";
-	graphNames[2] = "p-p lhc1020";
-	createLcmsPlot(graphNames, prefixes, "lhc1020", Rinv[5], Rlcms[5]);
+	graphNames[0] = "K-K 10-20%";
+	graphNames[1] = "\\pi-\\pi 10-20%";
+	graphNames[2] = "p-p 10-20%";
+	createLcmsPlot(graphNames, prefixes, "lhc1020_hHKM", Rinv[5], Rlcms[5]);
 
-	createPrfPlot(Rinv, Rlcms, numberOfCentralities);
+	prefixes[0] = "lhc2030/kk";
+	prefixes[1] = "lhc2030/pipi";
+	prefixes[2] = "lhc2030/pp";
+	graphNames[0] = "K-K 20-30%";
+	graphNames[1] = "\\pi-\\pi 20-30%";
+	graphNames[2] = "p-p 20-30%";
+	createLcmsPlot(graphNames, prefixes, "lhc2030_hHKM", Rinv[6], Rlcms[6]);
+
+	createPrfPlots(Rinv, Rlcms, numberOfCentralities);
 	return 0;
 }
 
@@ -124,12 +141,12 @@ void fillGraph(std::string fileName, TGraphErrors *graph, unsigned int iParticle
 	}
 }
 
-void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *fileName, Multiplot &Rinv, Multiplot &Rlcms)
+void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *fileName, MultiFitPlot &Rinv, MultiFitPlot &Rlcms)
 {
 	TCanvas *canvas = new TCanvas("canvas", "R_LCMS", 900, 800);
 	canvas->Divide(2,2);
 
-	Multiplot Rout(";m_{T} [GeV/c^{2}];R_{out} [fm]");
+	MultiFitPlot Rout(";m_{T} [GeV/c^{2}];R_{out} [fm]");
 
 	Rout.graphNames[0] = graphNames[0];
 	Rout.graphNames[1] = graphNames[1];
@@ -150,10 +167,10 @@ void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *
 	Rout.theme[2].markerSize = 1.5;
 	Rout.theme[2].markerStyle = 22;
 
-	Multiplot Rside(Rout);
-	Multiplot Rlong(Rout);
-	Rlcms = Multiplot(Rout);
-	Rinv = Multiplot(Rout);
+	MultiFitPlot Rside(Rout);
+	MultiFitPlot Rlong(Rout);
+	Rlcms = MultiFitPlot(Rout);
+	Rinv = MultiFitPlot(Rout);
 
 	Rside.labels = ";m_{T} [GeV/c^{2}];R_{side} [fm]";
 	Rlong.labels = ";m_{T} [GeV/c^{2}];R_{long} [fm]";
@@ -181,11 +198,40 @@ void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *
 		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rinv.out"), Rinv.graphs[j], j, kTRUE);
 		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlcms.out"), Rlcms.graphs[j], j);
 	}
+	Rout.Fit();
+	Rside.Fit();
+	Rlong.Fit();
+	Rlcms.Fit();
+	Rinv.Fit();
 	canvas->SaveAs((std::string("output/")+fileName+std::string(".png")).c_str());
 	delete canvas;
+
+	// normalized
+	Rout.labels = ";m_{T} [GeV/c^{2}];R_{out} / R_{out}^{FIT}";
+	Rside.labels = ";m_{T} [GeV/c^{2}];R_{side} / R_{side}^{FIT}";
+	Rlong.labels = ";m_{T} [GeV/c^{2}];R_{long} / R_{long}^{FIT}";
+	Rlcms.labels = ";m_{T} [GeV/c^{2}];R_{LCMS} / R_{LCMS}^{FIT}";
+
+	canvas = new TCanvas("canvas", "R_LCMS", 900, 800);
+	canvas->SetGrid();
+	gStyle->SetPadGridX(true);
+	gStyle->SetPadGridY(true);
+	canvas->Divide(2,2);
+	canvas->cd(1);
+	Rout.GetNormalizedPlot().Draw();
+	canvas->cd(2);
+	Rside.GetNormalizedPlot().Draw();
+	canvas->cd(3);
+	Rlong.GetNormalizedPlot().Draw();
+	canvas->cd(4);
+	Rlcms.GetNormalizedPlot().Draw();
+	canvas->SaveAs((std::string("output/")+fileName+std::string("_div.png")).c_str());
+	delete canvas;
+	gStyle->SetPadGridX(false);
+	gStyle->SetPadGridY(false);
 }
 
-void createPrfPlot(Multiplot *Rinv, Multiplot *Rlcms, int nCentralities)
+void createPrfPlotAllInONe(MultiFitPlot *Rinv, MultiFitPlot *Rlcms, int nCentralities)
 {
 	TCanvas *canvas = new TCanvas("canvas", "R_LCMS", 2500, 600);
 	canvas->Divide(nCentralities, 2);
@@ -194,9 +240,118 @@ void createPrfPlot(Multiplot *Rinv, Multiplot *Rlcms, int nCentralities)
 	{
 		canvas->cd(i);
 		Rinv[i-1].Draw();
+		Rinv[i-1].Fit();
 		canvas->cd(i+nCentralities);
 		Rlcms[i-1].Draw();
 	}
 	canvas->SaveAs("output/all.png");
 	delete canvas;
+}
+
+void createPrfPlots(MultiFitPlot *Rinv, MultiFitPlot *Rlcms, int nCentralities)
+{
+	TCanvas *canvas = 0;
+
+	// therminator
+	nCentralities = 3;
+	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	canvas->Divide(nCentralities, 2);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1].Draw();
+		Rinv[i-1].Fit();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} [fm]";
+		Rlcms[i-1].Draw();
+	}
+	canvas->SaveAs("output/all_therminator.png");
+	delete canvas;
+
+	// EPOS
+	nCentralities = 1;
+	canvas = new TCanvas("canvas", "R_LCMS", 800, 400);
+	canvas->Divide(2, nCentralities);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1+3].Draw();
+		Rinv[i-1+3].Fit();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1+3].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} [fm]";
+		Rlcms[i-1+3].Draw();
+	}
+	canvas->SaveAs("output/all_EPOS.png");
+	delete canvas;
+
+	// hHKM
+	nCentralities = 2;
+	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	canvas->Divide(nCentralities, 2);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1+4].Draw();
+		Rinv[i-1+4].Fit();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1+4].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} [fm]";
+		Rlcms[i-1+4].Draw();
+	}
+	canvas->SaveAs("output/all_hHKM.png");
+	delete canvas;
+
+
+	// normalized
+	gStyle->SetPadGridX(true);
+	gStyle->SetPadGridY(true);
+	// therminator
+	nCentralities = 3;
+	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	canvas->Divide(nCentralities, 2);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1].labels = ";m_{T} [GeV/c^{2}];R_{inv}/ R_{inv}^{FIT}";
+		Rinv[i-1].GetNormalizedPlot().Draw();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} / R_{LCMS}^{FIT}";
+		Rlcms[i-1].GetNormalizedPlot().Draw();
+	}
+	canvas->SaveAs("output/all_therminator_div.png");
+	delete canvas;
+
+	// EPOS
+	nCentralities = 1;
+	canvas = new TCanvas("canvas", "R_LCMS", 800, 400);
+	canvas->Divide(2, nCentralities);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1+3].labels = ";m_{T} [GeV/c^{2}];R_{inv}/ R_{inv}^{FIT}";
+		Rinv[i-1+3].GetNormalizedPlot().Draw();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1+3].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} / R_{LCMS}^{FIT}";
+		Rlcms[i-1+3].GetNormalizedPlot().Draw();
+	}
+	canvas->SaveAs("output/all_EPOS_div.png");
+	delete canvas;
+
+	// hHKM
+	nCentralities = 2;
+	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	canvas->Divide(nCentralities, 2);
+	for(int i = 1; i <= nCentralities; ++i)
+	{
+		canvas->cd(i);
+		Rinv[i-1+4].labels = ";m_{T} [GeV/c^{2}];R_{inv}/ R_{inv}^{FIT}";
+		Rinv[i-1+4].GetNormalizedPlot().Draw();
+		canvas->cd(i+nCentralities);
+		Rlcms[i-1+4].labels = ";m_{T} [GeV/c^{2}];R_{LCMS} / R_{LCMS}^{FIT}";
+		Rlcms[i-1+4].GetNormalizedPlot().Draw();
+	}
+	canvas->SaveAs("output/all_hHKM_div.png");
+	delete canvas;
+
+	gStyle->SetPadGridX(false);
+	gStyle->SetPadGridY(false);
 }

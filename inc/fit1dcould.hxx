@@ -7,6 +7,10 @@
 #include <TGraph.h>
 #include <TH1D.h>
 #include <TMath.h>
+#include <TCanvas.h>
+#include <fstream>
+#include <string>
+#include <sstream>
 #include <fstream>
 
 Double_t fungek(Double_t *x, Double_t *par);

@@ -47,7 +47,7 @@ $(OBJS): %.o: %.cxx
 
 clean:
 	rm -f $(DIR_OBJ)*.o
-	rm -f $(DIR_OBJ)*.root
+	# rm -f $(DIR_OBJ)*.root
 	rm -f ./fitsh
 	rm -f ./fit1d
 	rm -f ./merger

@@ -32,7 +32,7 @@ IFS="
 "
 
 # Kaons
-find $EVENT_DIR -name "outfilekkcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.kk.in
+# find $EVENT_DIR -name "outfilekkcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.kk.in
 FILES=`cat data/$CENTRALITY/filelist.kk.in`
 for parameter in $FILES
 do
@@ -43,8 +43,8 @@ do
 "
 done
 
-# # Pions
-find $EVENT_DIR -name "outfilecf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pipi.in
+# Pions
+# find $EVENT_DIR -name "outfilecf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pipi.in
 FILES=`cat data/$CENTRALITY/filelist.pipi.in`
 for parameter in $FILES
 do
@@ -56,7 +56,7 @@ do
 done
 
 # Protons
-find $EVENT_DIR -name "outfileppcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pp.in
+# find $EVENT_DIR -name "outfileppcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pp.in
 FILES=`cat data/$CENTRALITY/filelist.pp.in`
 for parameter in $FILES
 do
@@ -76,6 +76,6 @@ echo "Waiting for all fitting processes..."
 while [ `ps aux | grep [f]it | wc -l` != 0 ]; do
 	sleep 0.5
 done
-echo "Plotting..."
-make plots
-echo -e "\n\nDONE"
+#echo "Plotting..."
+#make plots
+echo -e "\n\n[ DONE ]"
