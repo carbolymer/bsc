@@ -30,6 +30,10 @@ fit1d: fit1dcould.o
 	echo -e "\033[01;33m[make]\033[01;36m $(addprefix $(DIR_OBJ), $^) \t\033[00;31m$(LFLAGS)\033[00m"
 	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)fit1d
 
+EPOShist:
+	echo -e "\033[01;33m[make]\033[00;32m Analyzing EPOS..."
+	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | shuf | head -n 500 | root -l -b -q macros/analyzeEPOS.C
+
 plots:
 	echo -e "\033[01;33m[make]\033[00;32m Making plots..."
 	root -l -b -q macros/plotter.C

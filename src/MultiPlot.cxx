@@ -1,9 +1,9 @@
 #ifndef _MULTIPLOT_CXX_
 #define _MULTIPLOT_CXX_
 
-
 #include <TH1F.h>
 #include <TLegend.h>
+#include <TLatex.h>
 #include <TGraphErrors.h>
 const int graphCount = 3;
 
@@ -136,8 +136,9 @@ public:
 			_legend->AddEntry(graphs[i], graphNames[i].c_str(),"P");
 		}
 
-		_legend->SetFillColor(0);
 		_legend->Draw();
+		_legend->SetFillColor(0);
+
 	}
 };
 

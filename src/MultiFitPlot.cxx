@@ -1,6 +1,7 @@
 #ifndef _MULTIFITPLOT_CXX_
 #define _MULTIFITPLOT_CXX_
 
+#include <sstream>
 #include <TF1.h>
 #include "MultiPlot.cxx"
 
@@ -8,13 +9,18 @@
 class MultiFitPlot: public MultiPlot
 {
 private:
-	TF1 *_fittingFunctions[graphCount];
+	TF1 *_fittingFunction;
+	TLatex _coefficients;
+	double _alpha, _alphaE, _gamma, _gammaE;
 
 protected:
 	MultiFitPlot& _copyIntoMe(const MultiFitPlot &rhs)
 	{
-		for(int i = 0; i < graphCount; ++i)
-			_fittingFunctions[i] = new TF1(*rhs._fittingFunctions[i]);
+		_alpha = rhs._alpha;
+		_gamma = rhs._gamma;
+		_alphaE = rhs._alphaE;
+		_gammaE = rhs._gammaE;
+		_fittingFunction = new TF1(*rhs._fittingFunction);
 		MultiPlot::_copyIntoMe(rhs);
 		return *this;
 	}
@@ -22,22 +28,34 @@ protected:
 public:
 	static TF1* defaultFunction;
 
-	MultiFitPlot() : MultiPlot("")
+	MultiFitPlot() :
+		MultiPlot(""),
+		_alpha(0),
+		_alphaE(0),
+		_gamma(0),
+		_gammaE(0)
 	{
-		for(int i = 0; i < graphCount; ++i)
-			_fittingFunctions[i] = new TF1(*defaultFunction);
+		_fittingFunction = new TF1(*defaultFunction);
 	}
 
-	MultiFitPlot(const char _labels[]) : MultiPlot(_labels)
+	MultiFitPlot(const char _labels[]) :
+		MultiPlot(_labels),
+		_alpha(0),
+		_alphaE(0),
+		_gamma(0),
+		_gammaE(0)
 	{
-		for(int i = 0; i < graphCount; ++i)
-			_fittingFunctions[i] = new TF1(*defaultFunction);
+		_fittingFunction = new TF1(*defaultFunction);
 	}
 
-	MultiFitPlot(const TF1* fittingFunctions[], const char _labels[] = "") : MultiPlot(_labels)
+	MultiFitPlot(const TF1* fittingFunction, const char _labels[] = "") :
+		MultiPlot(_labels),
+		_alpha(0),
+		_alphaE(0),
+		_gamma(0),
+		_gammaE(0)
 	{
-		for(int i = 0; i < graphCount; ++i)
-			_fittingFunctions[i] = (TF1*) fittingFunctions[i];
+		_fittingFunction = (TF1*) fittingFunction;
 	}
 
 	MultiFitPlot(const MultiFitPlot &rhs) : MultiPlot("")
@@ -70,22 +88,43 @@ public:
 				++it;
 			}
 		}
-		_fittingFunctions[0]->SetParameter(0,1);
-		_fittingFunctions[0]->SetParameter(1,1);
-		allPoints->Fit(_fittingFunctions[0],"S");
+		_fittingFunction->SetParameter(0,1);
+		_fittingFunction->SetParameter(1,1);
+		allPoints->Fit(_fittingFunction,"S");
+		// custom
+		_alpha = _fittingFunction->GetParameter(0);
+		_gamma = _fittingFunction->GetParameter(1);
+		_alphaE = _fittingFunction->GetParError(0);
+		_gammaE = _fittingFunction->GetParError(1);
 	}
 
 	void Draw()
 	{
 		MultiPlot::Draw();
-		// for(int i = 0; i < graphCount; ++i)
-		// {
-			_fittingFunctions[0]->Draw("SAME");
-			_fittingFunctions[0]->SetLineColor(1);
-			// if(graphs[i]->GetN() < 2)
-			// 	_fittingFunctions[i]->SetLineWidth(0);
-			_fittingFunctions[0]->SetLineWidth(2);
-		// }
+		_fittingFunction->Draw("SAME");
+		_fittingFunction->SetLineColor(1);
+		_fittingFunction->SetLineWidth(2);
+
+		std::stringstream a, aE, g, gE;
+		a.precision(3);
+		aE.precision(3);
+		g.precision(3);
+		gE.precision(3);
+
+		a << _alpha;
+		aE << _alphaE;
+		g << _gamma;
+		gE << _gammaE;
+
+		std::string pm = std::string(" #pm ");
+
+		if(_alpha != 0)
+		{
+			_coefficients.Draw();
+			_coefficients.DrawLatex(0.4, 9, 
+				(std::string("#splitline{\\alpha = ") + a.str() + pm + aE.str() 
+				+ std::string("}{\\gamma = ") + g.str() + pm + gE.str() + std::string("}")).c_str() );
+		}
 	}
 
 	MultiPlot& GetNormalizedPlot()
@@ -109,12 +148,9 @@ public:
 			yErrors = graphs[i]->GetEY();
 			for(j = 0; j < nPoints; ++j)
 			{
-				// if(nPoints >= 2)
-				{
-					graphs[i]->GetPoint(j, x, y);
-					mp->graphs[i]->SetPoint(j, x, y/_fittingFunctions[0]->Eval(x));
-					mp->graphs[i]->SetPointError(j, 0, yErrors[i]/_fittingFunctions[0]->Eval(x));
-				}
+				graphs[i]->GetPoint(j, x, y);
+				mp->graphs[i]->SetPoint(j, x, y/_fittingFunction->Eval(x));
+				mp->graphs[i]->SetPointError(j, 0, yErrors[i]/_fittingFunction->Eval(x));
 			}
 		}
 		return *mp;

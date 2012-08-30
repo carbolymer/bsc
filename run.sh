@@ -57,6 +57,7 @@ done
 
 # Protons
 # find $EVENT_DIR -name "outfileppcf*" -type f | sort | ./merger 1> data/$CENTRALITY/filelist.pp.in
+# find $EVENT_DIR -name "outfileppcf*" -type f | sort 1> data/$CENTRALITY/filelist.pp.in
 FILES=`cat data/$CENTRALITY/filelist.pp.in`
 for parameter in $FILES
 do

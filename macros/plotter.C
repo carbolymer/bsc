@@ -20,7 +20,7 @@ const Double_t particleMasses[3] = { // in GeV / c^2
 	0.938272029 // proton
 };
 
-const int numberOfCentralities = 7;
+const int numberOfCentralities = 8;
 
 void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *fileName, MultiFitPlot &Rinv, MultiFitPlot &Rlcms);
 void createPrfPlotAllInONe(MultiFitPlot Rinv[], MultiFitPlot Rlcms[], int nCentralities);
@@ -102,6 +102,14 @@ int plotter()
 	graphNames[2] = "p-p 20-30%";
 	createLcmsPlot(graphNames, prefixes, "lhc2030_hHKM", Rinv[6], Rlcms[6]);
 
+	prefixes[0] = "lhc3040/kk";
+	prefixes[1] = "lhc3040/pipi";
+	prefixes[2] = "lhc3040/pp";
+	graphNames[0] = "K-K 30-40%";
+	graphNames[1] = "\\pi-\\pi 30-40%";
+	graphNames[2] = "p-p 30-40%";
+	createLcmsPlot(graphNames, prefixes, "lhc3040_hHKM", Rinv[7], Rlcms[7]);
+
 	createPrfPlots(Rinv, Rlcms, numberOfCentralities);
 	return 0;
 }
@@ -177,6 +185,22 @@ void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *
 	Rlcms.labels = ";m_{T} [GeV/c^{2}];R_{LCMS} [fm]";
 	Rinv.labels = ";m_{T} [GeV/c^{2}];R_{inv}/[(\\sqrt{\\gamma}+2)/3]^{1/2} [fm]";
 
+	for( int j = 0; j < graphCount; ++j)
+	{
+		if(DEBUG) std::cout << std::endl << "  ###  " << prefixes[j] << "  ###   " << std::endl;
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rout.out"), Rout.graphs[j], j);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rside.out"), Rside.graphs[j], j);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlong.out"), Rlong.graphs[j], j);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rinv.out"), Rinv.graphs[j], j, kTRUE);
+		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlcms.out"), Rlcms.graphs[j], j);
+	}
+
+	Rout.Fit();
+	Rside.Fit();
+	Rlong.Fit();
+	Rlcms.Fit();
+	Rinv.Fit();
+
 	canvas->cd(1);
 	Rout.Draw();
 
@@ -189,20 +213,7 @@ void createLcmsPlot(std::string *graphNames, std::string *prefixes, const char *
 	canvas->cd(4);
 	Rlcms.Draw();
 
-	for( int j = 0; j < graphCount; ++j)
-	{
-		if(DEBUG) std::cout << std::endl << "  ###  " << prefixes[j] << "  ###   " << std::endl;
-		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rout.out"), Rout.graphs[j], j);
-		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rside.out"), Rside.graphs[j], j);
-		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlong.out"), Rlong.graphs[j], j);
-		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rinv.out"), Rinv.graphs[j], j, kTRUE);
-		fillGraph(std::string("data/") + prefixes[j] + std::string("_Rlcms.out"), Rlcms.graphs[j], j);
-	}
-	Rout.Fit();
-	Rside.Fit();
-	Rlong.Fit();
-	Rlcms.Fit();
-	Rinv.Fit();
+
 	canvas->SaveAs((std::string("output/")+fileName+std::string(".png")).c_str());
 	delete canvas;
 
@@ -285,8 +296,8 @@ void createPrfPlots(MultiFitPlot *Rinv, MultiFitPlot *Rlcms, int nCentralities)
 	delete canvas;
 
 	// hHKM
-	nCentralities = 2;
-	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	nCentralities = 4;
+	canvas = new TCanvas("canvas", "R_LCMS", 1200, 600);
 	canvas->Divide(nCentralities, 2);
 	for(int i = 1; i <= nCentralities; ++i)
 	{
@@ -337,8 +348,8 @@ void createPrfPlots(MultiFitPlot *Rinv, MultiFitPlot *Rlcms, int nCentralities)
 	delete canvas;
 
 	// hHKM
-	nCentralities = 2;
-	canvas = new TCanvas("canvas", "R_LCMS", 900, 600);
+	nCentralities = 4;
+	canvas = new TCanvas("canvas", "R_LCMS", 1200, 600);
 	canvas->Divide(nCentralities, 2);
 	for(int i = 1; i <= nCentralities; ++i)
 	{
