@@ -31,8 +31,8 @@ fit1d: fit1dcould.o
 	$(CXX) $(LFLAGS) $(addprefix $(DIR_OBJ), $^) -o $(DIR_BIN)fit1d
 
 EPOShist:
-	echo -e "\033[01;33m[make]\033[00;32m Analyzing EPOS..."
-	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | shuf | head -n 500 | root -l -b -q macros/analyzeEPOS.C
+	echo -e "\033[01;33m[make]\033[00;32m Analyzing EPOS impact parameters..."
+	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | head -n 50 | root -l -b -q macros/EPOSimpactDistribution.C++
 
 plots:
 	echo -e "\033[01;33m[make]\033[00;32m Making plots..."

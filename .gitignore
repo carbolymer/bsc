@@ -13,3 +13,5 @@ plotter
 canfit.root
 ofit.root
 *dist.root
+*.d
+*.so
