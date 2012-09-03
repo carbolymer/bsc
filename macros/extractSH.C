@@ -4,24 +4,11 @@
 
 void extract(const char* cFfileName, const char* outFileName, const char *title);
 
-
 int extractSH()
 {
-	extract("/data/disk1/Models/tpi_input/bb3m6/piku/outfilepikulcf31a.root",
-		"piku31.png",
+	extract("/data/disk1/Models/tpi_input/lhc2030/piku/outfilepikulcf35a.root ",
+		"piku35.png",
 		""); // "\\pi-K (+,-)   \\beta_{T} #in #[]{0.35, 0.5}"
-
-	extract("/data/disk1/Models/tpi_input/bb3m6/piku/outfilepikulcf32a.root",
-		"piku32.png",
-		""); // "\\pi-K (+,-)   \\beta_{T} #in #[]{0.5, 0.65}"
-
-	extract("/data/disk1/Models/tpi_input/bb3m6/piku/outfilepikulcf33a.root",
-		"piku33.png",
-		""); // "\\pi-K (+,-)   \\beta_{T} #in #[]{0.65, 0.8}"
-
-	extract("/data/disk1/Models/tpi_input/bb3m6/piku/outfilepikulcf34a.root",
-		"piku34.png",
-		""); // "\\pi-K (+,-)   \\beta_{T} #in #[]{0.8, 0.95}"
 	return 1;
 }
 
@@ -56,6 +43,7 @@ void extract(const char* cFfileName, const char* outFileName, const char *title)
 	{
 		canv->cd(i+1);
 		c[i]->Rebin(3);
+		c[i]->Scale(1./3.);
 		c[i]->Draw();
 		c[i]->SetAxisRange(0,1.6);
 		c[i]->SetMarkerStyle(20);

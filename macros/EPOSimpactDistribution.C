@@ -17,16 +17,12 @@ vector<string> inFiles;
 TH1D *bDist;
 TThread *threads[NTHREADS];
 
-void* worker(void*);
+void* worker();
 
 int EPOSimpactDistribution()
 {
-#ifdef __CINT__
-   printf("This script can only be executed via ACliC: .x %s++\n",__FILE__);
-   return;
-#endif
 	char buffer[256];
-	int toLoad[NTHREADS];
+	// int toLoad[NTHREADS];
 	stringstream number;
 
 	while (cin.good())
@@ -41,79 +37,78 @@ int EPOSimpactDistribution()
 
    	cout << "To analyze: " << inFiles.size() << " files" << endl;
    	
-   	for(int i = 0; i < NTHREADS; ++i)
-   	{
-   		number << i;
-		toLoad[i] = (int) ((double)inFiles.size()/NTHREADS);
-   		if(i == NTHREADS-1)
-   			toLoad[i] += inFiles.size()%NTHREADS;
-   		cout << toLoad[i] << endl;
-   		threads[i] = new TThread((string("thread_")+number.str()).c_str(), worker, (void*) (toLoad+i) );
-   	}
+  //  	for(int i = 0; i < NTHREADS; ++i)
+  //  	{
+  //  		number << i;
+		// toLoad[i] = (int) ((double)inFiles.size()/NTHREADS);
+  //  		if(i == NTHREADS-1)
+  //  			toLoad[i] += inFiles.size()%NTHREADS;
+  //  		cout << toLoad[i] << endl;
+  //  		threads[i] = new TThread((string("thread_")+number.str()).c_str(), worker, (void*) (toLoad+i) );
+  //  	}
 
 
 	bDist = new TH1D("bDIST", "Impact Parameter distribution;Impact parameter b;Entries", 80, 0, 20);
 
 	// launch worker
-	cout << "launching workers" << endl;
-   	for(int i = 0; i < NTHREADS; ++i)
-   	{
-   		threads[i]->Run();
-   	}
+	// cout << "launching workers" << endl;
+ //   	for(int i = 0; i < NTHREADS; ++i)
+ //   	{
+ //   		threads[i]->Run();
+ //   	}
 
-   	TThread::Ps();
+ //   	TThread::Ps();
 
-	cout << "waiting to join" << endl;
-   	for(int i = 0; i < NTHREADS; ++i)
-   	{
-   		threads[i]->Join();
-   	}
+	// cout << "waiting to join" << endl;
+ //   	for(int i = 0; i < NTHREADS; ++i)
+ //   	{
+ //   		threads[i]->Join();
+ //   	}
+	worker();
 
 	TCanvas *canv = new TCanvas("bdist","b dist", 800, 600);
 	bDist->Draw();
 	canv->SaveAs("epos_b_dist.png");
-	// canv->SaveAs("epos_b_dist.root");
+	canv->SaveAs("epos_b_dist.root");
 	delete canv;
 	return 0;
 }
 
-void* worker(void* numberOfFiles)
+void* worker()
 {
-	int iEvent, totalEventCount, nFiles;
+	int iEvent, totalEventCount;
 	Float_t bim;
 	TChain *tEPOS;
 
 	cout << "Worker has started" << endl;
 
-	nFiles = *(int*) numberOfFiles;
-	cout << "# Loading " << nFiles << " files." << endl;
-
 	tEPOS = new TChain("teposevent");
 
-	TThread::Lock();
-	while(!inFiles.empty() && nFiles-- > 0)
+	// TThread::Lock();
+	while(!inFiles.empty())
     {
-    	cout << "Loading " << inFiles.back() << endl;
+    	// cout << "Loading " << inFiles.back() << endl;
     	tEPOS->Add(inFiles.back().c_str());
     	inFiles.pop_back();
     }
-	TThread::UnLock();
+	// TThread::UnLock();
 
 	tEPOS->SetBranchStatus("*",1);
 	tEPOS->SetBranchAddress("bim", &bim);
 
+	// TThread::Lock();
 	totalEventCount = tEPOS->GetEntries();
+	// TThread::UnLock();
 
 	for(iEvent = 0; iEvent < totalEventCount; ++iEvent)
 	{
+		// TThread::Lock();
 		tEPOS->GetEntry(iEvent);
+		bDist->Fill(bim);
+		// TThread::UnLock();
 		if(iEvent % 200 == 0)
 			cout << "\t" << iEvent << " /\t" << totalEventCount << endl;
-		TThread::Lock();
-		// cout << bim << endl;
-		bDist->Fill(bim);
-		TThread::UnLock();
 	}
-	delete tEPOS;
+	// delete tEPOS;
 	return 0;
 }

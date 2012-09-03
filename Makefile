@@ -32,7 +32,11 @@ fit1d: fit1dcould.o
 
 EPOShist:
 	echo -e "\033[01;33m[make]\033[00;32m Analyzing EPOS impact parameters..."
-	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | head -n 50 | root -l -b -q macros/EPOSimpactDistribution.C++
+	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | root -l -b -q macros/EPOSimpactDistribution.C++
+
+EPOScreateCentralitiesList:
+	echo -e "\033[01;33m[make]\033[00;32m Creating EPOS centralities list..."
+	find /data/disk1/Models/bb3m6/ -name "*.root" -type f | sort | root -l -b -q macros/EPOScreateCentralitiesList.C++
 
 plots:
 	echo -e "\033[01;33m[make]\033[00;32m Making plots..."
