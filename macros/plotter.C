@@ -12,8 +12,6 @@
 
 #define DEBUG false
 
-// TODO - POLYMORPHYSM
-
 const Double_t particleMasses[3] = { // in GeV / c^2
 	0.493677,// kaon
 	0.1349766, // pion

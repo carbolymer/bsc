@@ -6,21 +6,51 @@ void extract(const char* cFfileName, const char* outFileName, const char *title)
 
 int extractSH()
 {
+	// "\\pi-K (+,-)   \\beta_{T} #in #[]{0.35, 0.5}"
+
+	// hkm 0-5
+	extract("/data/disk1/Models/tpi_input/lhc0005/piku/outfilepikulcf35a.root",
+		"hhkm0_piku35.png",
+		"\\pi-K unlike sign hHKM 0-5%");
+	extract("/data/disk1/Models/tpi_input/lhc0005/pik/outfilepikcf35a.root",
+		"hhkm0_pik35.png",
+		"\\pi-K like sign hHKM 0-5%");
+	extract("/data/disk1/Models/tpi_input/lhc0005/pipu/outfilepipulcf35a.root",
+		"hhkm0_pipu35.png",
+		"\\pi-p unlike sign hHKM 0-5%");
+	extract("/data/disk1/Models/tpi_input/lhc0005/pip/outfilepipcf35a.root",
+		"hhkm0_pip35.png",
+		"\\pi-p like sign hHKM 0-5%");
+	extract("/data/disk1/Models/tpi_input/lhc0005/kp/outfilekpcf35a.root",
+		"hhkm0_kp35.png",
+		"p-K like sign hHKM 0-5%");
+
+
 	// hkm 10-20
 	extract("/data/disk1/Models/tpi_input/lhc1020/piku/outfilepikulcf35a.root",
 		"hhkm1_piku35.png",
-		"\\pi-K unlike sign hHKM 10-20%"); // "\\pi-K (+,-)   \\beta_{T} #in #[]{0.35, 0.5}"
-	extract("/data/disk1/Models/tpi_input/lhc1020/kp/outfilekpcf35a.root",
-		"hhkm1_kp35.png",
-		"p-K like sign hHKM 10-20%");
+		"\\pi-K unlike sign hHKM 10-20%");
 	extract("/data/disk1/Models/tpi_input/lhc1020/pik/outfilepikcf35a.root",
 		"hhkm1_pik35.png",
 		"\\pi-K like sign hHKM 10-20%");
+	extract("/data/disk1/Models/tpi_input/lhc1020/pipu/outfilepipulcf35a.root",
+		"hhkm1_pipu35.png",
+		"\\pi-p unlike sign hHKM 10-20%");
+	extract("/data/disk1/Models/tpi_input/lhc1020/pip/outfilepipcf35a.root",
+		"hhkm1_pip35.png",
+		"\\pi-p like sign hHKM 10-20%");
+	extract("/data/disk1/Models/tpi_input/lhc1020/kp/outfilekpcf35a.root",
+		"hhkm1_kp35.png",
+		"p-K like sign hHKM 10-20%");
+
 
 	// hhkm 20-30
 	extract("/data/disk1/Models/tpi_input/lhc2030/piku/outfilepikulcf35a.root",
 		"hhkm2_piku35.png",
 		"\\pi-K unlike sign hHKM 20-30%");
+	extract("/data/disk1/Models/tpi_input/lhc2030/pik/outfilepikcf35a.root",
+		"hhkm2_pik35.png",
+		"\\pi-K like sign hHKM 20-30%");
 	extract("/data/disk1/Models/tpi_input/lhc2030/pipu/outfilepipulcf35a.root",
 		"hhkm2_pipu35.png",
 		"\\pi-p unlike sign hHKM 20-30%");
@@ -30,10 +60,23 @@ int extractSH()
 	extract("/data/disk1/Models/tpi_input/lhc2030/kp/outfilekpcf35a.root",
 		"hhkm2_kp35.png",
 		"p-K like sign hHKM 20-30%");
-	extract("/data/disk1/Models/tpi_input/lhc2030/pik/outfilepikcf35a.root",
-		"hhkm2_pik35.png",
-		"\\pi-K like sign hHKM 20-30%");
 
+	// hhkm 30-40
+	extract("/data/disk1/Models/tpi_input/lhc3040/piku/outfilepikulcf35a.root",
+		"hhkm3_piku35.png",
+		"\\pi-K unlike sign hHKM 30-40%");
+	extract("/data/disk1/Models/tpi_input/lhc3040/pik/outfilepikcf35a.root",
+		"hhkm3_pik35.png",
+		"\\pi-K like sign hHKM 30-40%");
+	extract("/data/disk1/Models/tpi_input/lhc3040/pipu/outfilepipulcf35a.root",
+		"hhkm3_pipu35.png",
+		"\\pi-p unlike sign hHKM 30-40%");
+	extract("/data/disk1/Models/tpi_input/lhc3040/pip/outfilepipcf35a.root",
+		"hhkm3_pip35.png",
+		"\\pi-p like sign hHKM 30-40%");
+	extract("/data/disk1/Models/tpi_input/lhc3040/kp/outfilekpcf35a.root",
+		"hhkm3_kp35.png",
+		"p-K like sign hHKM 30-40%");
 
 	return 1;
 }
@@ -71,8 +114,8 @@ void extract(const char* cFfileName, const char* outFileName, const char *title)
 	for(i = 0;i < nSH; ++i)
 	{
 		canv->cd(i+1);
-		c[i]->Rebin(3);
-		c[i]->Scale(1./3.);
+		// c[i]->Rebin(3);
+		// c[i]->Scale(1./3.);
 		c[i]->Draw();
 		c[i]->SetAxisRange(0,0.4);
 		c[i]->SetMarkerStyle(20);

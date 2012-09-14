@@ -50,7 +50,7 @@ int EPOScreateCentralitiesList()
 
 	centralities[5].name = "4050";
 	centralities[5].bMin = 9.875;
-	centralities[6].bMax = 11.125;
+	centralities[5].bMax = 11.125;
 
 	centralities[6].name = "5060";
 	centralities[6].bMin = 11.125;
@@ -100,7 +100,7 @@ int EPOScreateCentralitiesList()
 			if(centralities[i].bMin <= bim && centralities[i].bMax > bim )
 			{
 				centralitiesFiles[i] << iEvent << endl;
-				cout << bim << " @ " << centralities[i].bMin << "-" << centralities[i].bMax << endl;
+				// cout << bim << " @ " << centralities[i].bMin << "-" << centralities[i].bMax << endl;
 				break;
 			}
 		}
