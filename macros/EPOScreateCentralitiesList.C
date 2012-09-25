@@ -30,38 +30,38 @@ int EPOScreateCentralitiesList()
 
 	centralities[0].name = "0005";
 	centralities[0].bMin = 0;
-	centralities[0].bMax = 3.375;
+	centralities[0].bMax = 3.47;
 
 	centralities[1].name = "0510";
-	centralities[1].bMin = 3.375;
-	centralities[1].bMax = 4.875;
+	centralities[1].bMin = 3.47;
+	centralities[1].bMax = 4.91;
 
 	centralities[2].name = "1020";
-	centralities[2].bMin = 4.875;
-	centralities[2].bMax = 6.875;
+	centralities[2].bMin = 4.91;
+	centralities[2].bMax = 6.97;
 
 	centralities[3].name = "2030";
-	centralities[3].bMin = 6.875;
-	centralities[3].bMax = 9.125;
+	centralities[3].bMin = 6.97;
+	centralities[3].bMax = 8.55;
 
 	centralities[4].name = "3040";
-	centralities[4].bMin = 9.125;
-	centralities[4].bMax = 9.875;
+	centralities[4].bMin = 8.55;
+	centralities[4].bMax = 9.87;
 
 	centralities[5].name = "4050";
-	centralities[5].bMin = 9.875;
-	centralities[5].bMax = 11.125;
+	centralities[5].bMin = 9.87;
+	centralities[5].bMax = 11.03;
 
 	centralities[6].name = "5060";
-	centralities[6].bMin = 11.125;
-	centralities[6].bMax = 12.125;
+	centralities[6].bMin = 11.03;
+	centralities[6].bMax = 12.07;
 
 	centralities[7].name = "7080";
-	centralities[7].bMin = 12.125;
-	centralities[7].bMax = 13.875;
+	centralities[7].bMin = 12.07;
+	centralities[7].bMax = 13.93;
 
 	centralities[8].name = "8099";
-	centralities[8].bMin = 13.875;
+	centralities[8].bMin = 13.93;
 	centralities[8].bMax = 20;
 
 

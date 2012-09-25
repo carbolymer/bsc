@@ -7,6 +7,7 @@
 #include <TFile.h>
 #include <TFileMerger.h>
 #include <TStyle.h>
+#include <TLegend.h>
 
 #define LABELTEST false
 
@@ -32,15 +33,15 @@ const Int_t
 		markerColor = 0,
 		lineColor = 4;
 const Float_t
-		titleSize = 0.055,
+		titleSize = 0.06,
 		titleOffset = 0.85,
 		labelOffset = 0.005,
-		labelSize = 0.04,
-		legendX1 = 0.7,
-		legendY1 = 0.8,
+		labelSize = 0.06,
+		legendX1 = 0.8,
+		legendY1 = 0.6,
 		legendX2 = 0.999,
 		legendY2 = 0.977,
-		markerSize = 1.3;
+		markerSize = 1.4;
 
 void loadCentralityBin(
 		const char *directory,
@@ -56,9 +57,9 @@ void loadCentralityBin(
 		std::vector<CorrelationFunction> &pipu
 	);
 
-void Draw(const char* canvasName, std::vector<CorrelationFunction> &plots);
+void Draw(const char* pairName, const char* canvasName, std::vector<CorrelationFunction> &plots, bool isIdentical = true);
 void DrawSinglePlot(TH1D* correlationFunction, const char *title, unsigned int&);
-// void Draw(const char* model, DrawConfiguration configuration, vector<CorrelationFunction> &plots);
+void SetRanges(TH1D* correlationFunction, const char* pairType, const char* functionType);
 
 int createCorrelationPlots()
 {
@@ -87,13 +88,13 @@ int createCorrelationPlots()
 	loadCentralityBin(
 		"/home/mgalazyn/workspace/tpi_output/lhc2030",
 		"hHKM",
-		"10-20%",
+		"20-30%",
 		pipi, pp, kk, kp, pik, piku, pip, pipu);
 
 	loadCentralityBin(
 		"/home/mgalazyn/workspace/tpi_output/lhc3040",
 		"hHKM",
-		"30-30%",
+		"30-40%",
 		pipi, pp, kk, kp, pik, piku, pip, pipu);
 
 	loadCentralityBin(
@@ -128,7 +129,14 @@ int createCorrelationPlots()
 	gStyle->SetPadLeftMargin(0.11);
 	gStyle->SetPadRightMargin(0.05);
 
-	Draw("pipi",pipi);
+	Draw("\\pi-\\pi","pipi",pipi);
+	Draw("K-K","kk",kk);
+	Draw("p-p","pp",pp);
+	Draw("K-p","kp",kp, false);
+	Draw("\\pi-K like sign","pik",pik, false);
+	Draw("\\pi-K unlike sign","piku",piku, false);
+	Draw("\\pi-p like sign","pip",pip, false);
+	Draw("\\pi-p unlike sign","pipu",pipu, false);
 
 	return 0;
 }
@@ -226,6 +234,9 @@ void loadCentralityBin(
 			merger.Merge();
 			// break; //////// DEBUG!!!
         }
+        if(strcmp(merger.GetOutputFileName(),"") == 0)
+        	continue;
+
 		TFile *file = new TFile(merger.GetOutputFileName());
 
 		if(file == 0)
@@ -252,147 +263,195 @@ void loadCentralityBin(
 			file->GetObject("CfnReYlm22NonIdCYlmTrue", cf.cfSH22);
 		}
 
-		file->GetObject("CfnReYlm00NonIdCYlm", cf.cfSH00);
-		if(cf.cfSH00)
+
+		if(!cf.cfSH00)
 		{
 			file->GetObject("CfnReYlm00NonIdCYlm", cf.cfSH00);
-			file->GetObject("CfnReYlm10NonIdCYlm", cf.cfSH10);
-			file->GetObject("CfnReYlm11NonIdCYlm", cf.cfSH11);
-			file->GetObject("CfnReYlm20NonIdCYlm", cf.cfSH20);
-			file->GetObject("CfnReYlm22NonIdCYlm", cf.cfSH22);
+			if(cf.cfSH00)
+			{
+				file->GetObject("CfnReYlm00NonIdCYlm", cf.cfSH00);
+				file->GetObject("CfnReYlm10NonIdCYlm", cf.cfSH10);
+				file->GetObject("CfnReYlm11NonIdCYlm", cf.cfSH11);
+				file->GetObject("CfnReYlm20NonIdCYlm", cf.cfSH20);
+				file->GetObject("CfnReYlm22NonIdCYlm", cf.cfSH22);
+			}
 		}
 
-		file->GetObject("CfnReYlm00IdLCYlm", cf.cfSH00);
-		if(cf.cfSH00)
+		if(!cf.cfSH00)
 		{
 			file->GetObject("CfnReYlm00IdLCYlm", cf.cfSH00);
-			file->GetObject("CfnReYlm10IdLCYlm", cf.cfSH10);
-			file->GetObject("CfnReYlm11IdLCYlm", cf.cfSH11);
-			file->GetObject("CfnReYlm20IdLCYlm", cf.cfSH20);
-			file->GetObject("CfnReYlm22IdLCYlm", cf.cfSH22);
+			if(cf.cfSH00)
+			{
+				file->GetObject("CfnReYlm00IdLCYlm", cf.cfSH00);
+				file->GetObject("CfnReYlm10IdLCYlm", cf.cfSH10);
+				file->GetObject("CfnReYlm11IdLCYlm", cf.cfSH11);
+				file->GetObject("CfnReYlm20IdLCYlm", cf.cfSH20);
+				file->GetObject("CfnReYlm22IdLCYlm", cf.cfSH22);
+			}
 		}
+		if(cf.cfSH00 && cf.cfSH10 && cf.cfSH11 && cf.cfSH20 && cf.cfSH22)
+			correlationFunctions[i]->push_back(cf);
+		else
+		{	
+			std::cout << "[ERROR] Could not load all SH functions from file *" << chEl->GetTitle() << "* !!!" << std::endl;
+			if(!cf.cfSH00)
+				std::cout << "[ERROR] Problem loading SH00" << std::endl;
+			if(!cf.cfSH10)
+				std::cout << "[ERROR] Problem loading SH10" << std::endl;
+			if(!cf.cfSH11)
+				std::cout << "[ERROR] Problem loading SH11" << std::endl;
+			if(!cf.cfSH20)
+				std::cout << "[ERROR] Problem loading SH20" << std::endl;
+			if(!cf.cfSH22)
+				std::cout << "[ERROR] Problem loading SH22" << std::endl;
 
-		correlationFunctions[i]->push_back(cf);
+		}
 	}
 }
 
-void Draw(const char* canvasName, std::vector<CorrelationFunction> &plots)
+void Draw(const char* pairName, const char* canvasName, std::vector<CorrelationFunction> &plots, bool isIdentical)
 {
 	unsigned int i, k;
-	TCanvas *canv = new TCanvas(canvasName, canvasName, 1800, 600);
-	canv->Divide(6,2);
+	int canvasNumber1 = -1, canvasNumber2 = 0;
+	TLegend *hHKMlegend, *EPOSlegend;
+	TCanvas *canv = new TCanvas(canvasName, canvasName, 1300, 2000);
+	if(isIdentical)
+		canv->Divide(2,4);
+	else
+		canv->Divide(2,5);
 
+	// 
 	// hHKM
+	//
+	hHKMlegend = new TLegend(legendX1, legendY1, legendX2, legendY2);
+
 	k = 0;
-	canv->cd(1);
+	canv->cd(++++canvasNumber1);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("hHKM") == 0)
 		{
-			DrawSinglePlot(plots[i].cf1D, ";q_{inv} (GeV/c);C(q_{inv})", k);
+			DrawSinglePlot(plots[i].cf1D, (std::string(pairName) + std::string(" - hHKM - 1D;q_{inv} (GeV/c);C(q_{inv})")).c_str(), k);
+			SetRanges(plots[i].cf1D, canvasName, "1D");
+			hHKMlegend->AddEntry(plots[i].cf1D, plots[i].centrality.c_str(),"P");
 		}
+	if(plots.size() > 0)
+	{
+		hHKMlegend->Draw();
+		hHKMlegend->SetFillColor(0);
+	}
 			
 	k = 0;
-	canv->cd(2);
+	canv->cd(++++canvasNumber1);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("hHKM") == 0)
 		{
-			DrawSinglePlot(plots[i].cfSH00, ";k* (GeV/c);#RgothicC^{0}_{0}", k);
+			DrawSinglePlot(plots[i].cfSH00, (std::string(pairName) + std::string(" - hHKM - Spherical Harmonics;k* (GeV/c);#RgothicC^{0}_{0}")).c_str(), k);
+			SetRanges(plots[i].cfSH00, canvasName, "SH00");
+		}
+
+	if(!isIdentical)
+	{
+		k = 0;
+		canv->cd(++++canvasNumber1);
+		for(i = 0 ; i < plots.size(); ++i)
+			if(plots[i].model.compare("hHKM") == 0)
+			{
+				DrawSinglePlot(plots[i].cfSH11, (std::string(pairName) + std::string(" - hHKM - Spherical Harmonics;k* (GeV/c);#RgothicC^{1}_{1}")).c_str(), k);
+				SetRanges(plots[i].cfSH11, canvasName, "SH11");
+			}
+	}
+
+	k = 0;
+	canv->cd(++++canvasNumber1);
+	for(i = 0 ; i < plots.size(); ++i)
+		if(plots[i].model.compare("hHKM") == 0)
+		{
+			DrawSinglePlot(plots[i].cfSH20, (std::string(pairName) + std::string(" - hHKM - Spherical Harmonics;k* (GeV/c);#RgothicC^{0}_{2}")).c_str(), k);
+			SetRanges(plots[i].cfSH20, canvasName, "SH20");
 		}
 
 	k = 0;
-	canv->cd(3);
+	canv->cd(++++canvasNumber1);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("hHKM") == 0)
 		{
-			DrawSinglePlot(plots[i].cfSH10, ";k* (GeV/c);#RgothicC^{0}_{1}", k);
+			DrawSinglePlot(plots[i].cfSH22, (std::string(pairName) + std::string(" - hHKM - Spherical Harmonics;k* (GeV/c);#RgothicC^{2}_{2}")).c_str(), k);
+			SetRanges(plots[i].cfSH22, canvasName, "SH22");
 		}
 
-	k = 0;
-	canv->cd(4);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("hHKM") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH11, ";k* (GeV/c);#RgothicC^{1}_{1}", k);
-		}
-
-	k = 0;
-	canv->cd(5);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("hHKM") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH20, ";k* (GeV/c);#RgothicC^{0}_{2}", k);
-		}
-
-	k = 0;
-	canv->cd(6);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("hHKM") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH22, ";k* (GeV/c);#RgothicC^{2}_{2}", k);
-		}
-
+	//
 	// EPOS
+	//
+	EPOSlegend = new TLegend(legendX1, legendY1, legendX2, legendY2);
+
 	k = 0;
-	canv->cd(7);
+	canv->cd(++++canvasNumber2);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("EPOS") == 0)
 		{
-			DrawSinglePlot(plots[i].cf1D, ";q_{inv} (GeV/c);C(q_{inv})", k);
+			DrawSinglePlot(plots[i].cf1D, (std::string(pairName) + std::string(" - EPOS - 1D;q_{inv} (GeV/c);C(q_{inv})")).c_str(), k);
+			SetRanges(plots[i].cf1D, canvasName, "1D");
+			EPOSlegend->AddEntry(plots[i].cf1D, plots[i].centrality.c_str(),"P");
 		}
-			
+	if(plots.size() > 0)
+	{
+		EPOSlegend->Draw();
+		EPOSlegend->SetFillColor(0);
+	}
+		
 	k = 0;
-	canv->cd(8);
+	canv->cd(++++canvasNumber2);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("EPOS") == 0)
 		{
-			DrawSinglePlot(plots[i].cfSH00, ";k* (GeV/c);#RgothicC^{0}_{0}", k);
+			DrawSinglePlot(plots[i].cfSH00, (std::string(pairName) + std::string(" - EPOS - Spherical Harmonics;k* (GeV/c);#RgothicC^{0}_{0}")).c_str(), k);
+			SetRanges(plots[i].cfSH00, canvasName, "SH00");
+		}
+
+	if(!isIdentical)
+	{
+		k = 0;
+		canv->cd(++++canvasNumber2);
+		for(i = 0 ; i < plots.size(); ++i)
+			if(plots[i].model.compare("EPOS") == 0)
+			{
+				DrawSinglePlot(plots[i].cfSH11, (std::string(pairName) + std::string(" - EPOS - Spherical Harmonics;k* (GeV/c);#RgothicC^{1}_{1}")).c_str(), k);
+				SetRanges(plots[i].cfSH11, canvasName, "SH11");
+			}
+	}
+
+	k = 0;
+	canv->cd(++++canvasNumber2);
+	for(i = 0 ; i < plots.size(); ++i)
+		if(plots[i].model.compare("EPOS") == 0)
+		{
+			DrawSinglePlot(plots[i].cfSH20, (std::string(pairName) + std::string(" - EPOS - Spherical Harmonics;k* (GeV/c);#RgothicC^{0}_{2}")).c_str(), k);
+			SetRanges(plots[i].cfSH20, canvasName, "SH20");
 		}
 
 	k = 0;
-	canv->cd(9);
+	canv->cd(++++canvasNumber2);
 	for(i = 0 ; i < plots.size(); ++i)
 		if(plots[i].model.compare("EPOS") == 0)
 		{
-			DrawSinglePlot(plots[i].cfSH10, ";k* (GeV/c);#RgothicC^{0}_{1}", k);
+			DrawSinglePlot(plots[i].cfSH22, (std::string(pairName) + std::string(" - EPOS - Spherical Harmonics;k* (GeV/c);#RgothicC^{2}_{2}")).c_str(), k);
+			SetRanges(plots[i].cfSH22, canvasName, "SH22");
 		}
 
-	k = 0;
-	canv->cd(10);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("EPOS") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH11, ";k* (GeV/c);#RgothicC^{1}_{1}", k);
-		}
-
-	k = 0;
-	canv->cd(11);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("EPOS") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH20, ";k* (GeV/c);#RgothicC^{0}_{2}", k);
-		}
-
-	k = 0;
-	canv->cd(12);
-	for(i = 0 ; i < plots.size(); ++i)
-		if(plots[i].model.compare("EPOS") == 0)
-		{
-			DrawSinglePlot(plots[i].cfSH22, ";k* (GeV/c);#RgothicC^{2}_{2}", k);
-		}
-
+	canv->SaveAs((std::string(canvasName)+std::string(".eps")).c_str());
 	canv->SaveAs((std::string(canvasName)+std::string(".png")).c_str());
 	canv->SaveAs((std::string(canvasName)+std::string(".root")).c_str());
 }
 
 void DrawSinglePlot(TH1D* correlationFunction, const char* title, unsigned int &i)
 {
+	correlationFunction->SetAxisRange(0,0.2);
 	if(i == 0)
 	{
 		correlationFunction->Draw();
 		correlationFunction->GetYaxis()->SetTitleSize(titleSize);
 		correlationFunction->GetYaxis()->SetTitleOffset(titleOffset);
 		correlationFunction->GetYaxis()->SetLabelOffset(labelOffset);
-		correlationFunction->GetXaxis()->SetLimits(0,0.2);
 		correlationFunction->GetXaxis()->SetTitleSize(titleSize);
 		correlationFunction->GetXaxis()->SetTitleOffset(titleOffset);
 		correlationFunction->GetXaxis()->SetLabelOffset(labelOffset);
@@ -407,34 +466,313 @@ void DrawSinglePlot(TH1D* correlationFunction, const char* title, unsigned int &
 	correlationFunction->SetMarkerStyle(34);
 }
 
-// void Draw(const char* model, DrawConfiguration configuration, vector<CorrelationFunction> &plots)
-// {
-// 	configuration.axes->Draw();
-// 	configuration.axes->GetYaxis()->SetRangeUser(configuration.yMin,configuration.yMax);
-// 	configuration.axes->GetYaxis()->SetTitleSize(configuration.titleSize);
-// 	configuration.axes->GetYaxis()->SetTitleOffset(configuration.titleOffset);
-// 	configuration.axes->GetYaxis()->SetLabelOffset(configuration.labelOffset);
-// 	configuration.axes->GetYaxis()->SetLabelSize(configuration.labelSize);
-// 	configuration.axes->GetXaxis()->SetLimits(configuration.xMin,xMax);
-// 	configuration.axes->GetXaxis()->SetTitleSize(configuration.titleSize);
-// 	configuration.axes->GetXaxis()->SetTitleOffset(configuration.titleOffset+0.05);
-// 	configuration.axes->GetXaxis()->SetLabelOffset(configuration.labelOffset);
-// 	configuration.axes->GetXaxis()->SetLabelSize(configuration.labelSize);
-// 	configuration.axes->SetTitle(labels.c_str());
-	
-// 	TLegend *_legend = new TLegend(configuration.legendX1, configuration.legendY1, configuration.legendX2, configuration.legendY2);
-// 		_legend->Clear();
-// 		for(int i = 0; i < graphCount; ++i)
-// 		{
-// 			graphs[i]->Draw("SAMEP*");
-// 			graphs[i]->SetMarkerColor(theme[i].markerColor);
-// 			graphs[i]->SetLineColor(theme[i].lineColor);
-// 			graphs[i]->SetMarkerSize(theme[i].markerSize);
-// 			graphs[i]->SetMarkerStyle(theme[i].markerStyle);
-// 			_legend->AddEntry(graphs[i], graphNames[i].c_str(),"P");
-// 		}
+void SetRanges(TH1D* correlationFunction, const char* pairType, const char* functionType)
+{
+	std::string
+		sFunctionType = functionType,
+		sPairType = pairType;
+	if(sFunctionType.compare("1D") == 0 && sPairType.compare("kk") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("kp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0,1.1);
+		// correlationFunction->SetAxisRange(0,1.1,"Y");
+		correlationFunction->SetMinimum(0);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pik") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
+		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
+		correlationFunction->SetMinimum(0.4);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("piku") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pip") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
+		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
+		correlationFunction->SetMinimum(0.4);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pipi") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pipu") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.1,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.1,1.1);
+		// correlationFunction->SetAxisRange(0.1,1.1,"Y");
+		correlationFunction->SetMinimum(0.1);
+		correlationFunction->SetMaximum(1.1);
+	}
 
-// 		_legend->Draw();
-// 		_legend->SetFillColor(0);
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("kk") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("kp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0,1.1);
+		// correlationFunction->SetAxisRange(0,1.1,"Y");
+		correlationFunction->SetMinimum(0);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pik") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
+		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
+		correlationFunction->SetMinimum(0.4);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("piku") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pip") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
+		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
+		correlationFunction->SetMinimum(0.4);
+		correlationFunction->SetMaximum(1.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pipi") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pipu") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
+		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetMinimum(0.9);
+		correlationFunction->SetMaximum(2.1);
+	}
+	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(0.1,1.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(0.1,1.1);
+		// correlationFunction->SetAxisRange(0.1,1.1,"Y");
+		correlationFunction->SetMinimum(0.1);
+		correlationFunction->SetMaximum(1.1);
+	}
 
-// }
+	else if(sFunctionType.compare("SH11") == 0 && sPairType.compare("kp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.02,0.02);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.02,0.02);
+		// correlationFunction->SetAxisRange(-0.02,.02,"Y");
+		correlationFunction->SetMinimum(-0.02);
+		correlationFunction->SetMaximum(0.02);
+	}
+	else if(sFunctionType.compare("SH11") == 0 && sPairType.compare("pik") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.01,0.03);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.01,0.03);
+		// correlationFunction->SetAxisRange(-0.01,0.03,"Y");
+		correlationFunction->SetMinimum(-0.01);
+		correlationFunction->SetMaximum(0.03);
+	}
+	else if(sFunctionType.compare("SH11") == 0 && sPairType.compare("piku") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.025,0.005);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.025,0.005);
+		// correlationFunction->SetAxisRange(-0.025,0.005,"Y");
+		correlationFunction->SetMinimum(-0.025);
+		correlationFunction->SetMaximum(0.005);
+	}
+	else if(sFunctionType.compare("SH11") == 0 && sPairType.compare("pip") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.005,0.03);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.005,0.03);
+		// correlationFunction->SetAxisRange(-0.005,0.03,"Y");
+		correlationFunction->SetMinimum(-0.005);
+		correlationFunction->SetMaximum(0.03);
+	}
+	else if(sFunctionType.compare("SH11") == 0 && sPairType.compare("pipu") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.06,0.01);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.06,0.01);
+		// correlationFunction->SetAxisRange(-0.06,0.01,"Y");
+		correlationFunction->SetMinimum(-0.06);
+		correlationFunction->SetMaximum(0.01);
+	}
+
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("kk") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.11,0.11);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.11,0.11);
+		// correlationFunction->SetAxisRange(-0.11,0.11,"Y");
+		correlationFunction->SetMinimum(-0.11);
+		correlationFunction->SetMaximum( 0.11);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("kp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.02,0.02);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.02,0.02);
+		// correlationFunction->SetAxisRange(-0.02,0.02,"Y");
+		correlationFunction->SetMinimum(-0.02);
+		correlationFunction->SetMaximum(0.02);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("pik") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.01,0.01);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.01,0.01);
+		// correlationFunction->SetAxisRange(-0.01,0.01,"Y");
+		correlationFunction->SetMinimum(-0.01);
+		correlationFunction->SetMaximum(0.01);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("piku") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.01,0.01);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.01,0.01);
+		// correlationFunction->SetAxisRange(-0.01,0.01,"Y");
+		correlationFunction->SetMinimum(-0.01);
+		correlationFunction->SetMaximum(0.01);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("pip") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.01,0.01);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.01,0.01);
+		// correlationFunction->SetAxisRange(-0.01,0.01,"Y");
+		correlationFunction->SetMinimum(-0.01);
+		correlationFunction->SetMaximum(0.01);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("pipi") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.1,0.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.1,0.1);
+		// correlationFunction->SetAxisRange(-0.1,0.1,"Y");
+		correlationFunction->SetMinimum(-0.1);
+		correlationFunction->SetMaximum(0.1);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("pipu") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.015,0.015);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.015,0.015);
+		// correlationFunction->SetAxisRange(-0.015,015,"Y");
+		correlationFunction->SetMinimum(-0.015);
+		correlationFunction->SetMaximum(0.015);
+	}
+	else if(sFunctionType.compare("SH20") == 0 && sPairType.compare("pp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.1,0.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.1,0.1);
+		// correlationFunction->SetAxisRange(-0.1,0.1,"Y");
+		correlationFunction->SetMinimum(-0.1);
+		correlationFunction->SetMaximum(0.1);
+	}
+
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("kk") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.11,0.11);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.11,0.11);
+		// correlationFunction->SetAxisRange(-0.11,0.11,"Y");
+		correlationFunction->SetMinimum(-0.11);
+		correlationFunction->SetMaximum(0.11);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("kp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.02,0.02);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.02,0.02);
+		// correlationFunction->SetAxisRange(-0.02,0.02,"Y");
+		correlationFunction->SetMinimum(-0.02);
+		correlationFunction->SetMaximum(0.02);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("pik") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.005,005);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.005,0.005);
+		// correlationFunction->SetAxisRange(-0.005,0.005,"Y");
+		correlationFunction->SetMinimum(-0.005);
+		correlationFunction->SetMaximum(0.005);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("piku") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.015,0.015);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.015,0.015);
+		// correlationFunction->SetAxisRange(-0.015,0.015,"Y");
+		correlationFunction->SetMinimum(-0.015);
+		correlationFunction->SetMaximum(0.015);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("pip") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.01,0.01);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.01,0.01);
+		// correlationFunction->SetAxisRange(-0.01,0.01,"Y");
+		correlationFunction->SetMinimum(-0.01);
+		correlationFunction->SetMaximum(0.01);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("pipi") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.1,0.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.1,0.1);
+		// correlationFunction->SetAxisRange(-0.1,0.1,"Y");
+		correlationFunction->SetMinimum(-0.1);
+		correlationFunction->SetMaximum(0.1);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("pipu") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.02,0.02);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.02,0.02);
+		// correlationFunction->SetAxisRange(-0.02,0.02,"Y");
+		correlationFunction->SetMinimum(-0.02);
+		correlationFunction->SetMaximum(0.02);
+	}
+	else if(sFunctionType.compare("SH22") == 0 && sPairType.compare("pp") == 0)
+	{
+		// correlationFunction->GetYaxis()->SetLimits(-0.1,0.1);
+		// correlationFunction->GetYaxis()->SetRangeUser(-0.1,0.1);
+		// correlationFunction->SetAxisRange(-0.1,0.1,"Y");
+		correlationFunction->SetMinimum(-0.1);
+		correlationFunction->SetMaximum(0.1);
+	}
+	else
+	{
+		std::cout << "Unknown pair type: " << sPairType << " and function name: " << sFunctionType << std::endl;
+	}
+}

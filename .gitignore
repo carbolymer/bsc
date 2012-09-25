@@ -2,9 +2,11 @@ filelist.*
 event*
 *.png
 *.out
+*.eps
 *.log
 output.root
 /tmp/
+macros/*.root
 s2t
 fit1d
 fitsh
