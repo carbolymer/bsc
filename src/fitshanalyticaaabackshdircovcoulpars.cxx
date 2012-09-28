@@ -42,8 +42,8 @@ int main(int argc, char **argv)
   RoutFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
   RsideFile << argv[2] << "\t" << argv[3] << "\t" << Rside << "\t" << dRout << std::endl;
   RlongFile << argv[2] << "\t" << argv[3] << "\t" << Rlong << "\t" << dRout << std::endl;
-  RlcmsFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
-  lambdaFile << argv[2] << "\t" << argv[3] << "\t" << Rout << "\t" << dRout << std::endl;
+  RlcmsFile << argv[2] << "\t" << argv[3] << "\t" << Rlcms << "\t" << dRlcms << std::endl;
+  lambdaFile << argv[2] << "\t" << argv[3] << "\t" << lambda << "\t" << lambda << std::endl;
 
   RoutFile.close();
   RsideFile.close();

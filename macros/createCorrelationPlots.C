@@ -33,15 +33,15 @@ const Int_t
 		markerColor = 0,
 		lineColor = 4;
 const Float_t
-		titleSize = 0.06,
-		titleOffset = 0.85,
+		titleSize = 0.08,
+		titleOffset = 0.70,
 		labelOffset = 0.005,
-		labelSize = 0.06,
+		labelSize = 0.08,
 		legendX1 = 0.8,
-		legendY1 = 0.6,
+		legendY1 = 0.5,
 		legendX2 = 0.999,
 		legendY2 = 0.977,
-		markerSize = 1.4;
+		markerSize = 2;
 
 void loadCentralityBin(
 		const char *directory,
@@ -452,10 +452,10 @@ void DrawSinglePlot(TH1D* correlationFunction, const char* title, unsigned int &
 		correlationFunction->GetYaxis()->SetTitleSize(titleSize);
 		correlationFunction->GetYaxis()->SetTitleOffset(titleOffset);
 		correlationFunction->GetYaxis()->SetLabelOffset(labelOffset);
-		correlationFunction->GetXaxis()->SetTitleSize(titleSize);
+		correlationFunction->GetXaxis()->SetTitleSize(titleSize-0.01);
 		correlationFunction->GetXaxis()->SetTitleOffset(titleOffset);
 		correlationFunction->GetXaxis()->SetLabelOffset(labelOffset);
-		correlationFunction->GetXaxis()->SetLabelSize(labelSize);
+		correlationFunction->GetXaxis()->SetLabelSize(labelSize-0.04);
 		correlationFunction->SetTitle(title);
 		i = 1;
 	}
@@ -484,7 +484,8 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0,1.1);
 		// correlationFunction->SetAxisRange(0,1.1,"Y");
-		correlationFunction->SetMinimum(0);
+		correlationFunction->SetAxisRange(0,0.1);
+		correlationFunction->SetMinimum(0.5);
 		correlationFunction->SetMaximum(1.1);
 	}
 	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pik") == 0)
@@ -492,24 +493,27 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
 		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
-		correlationFunction->SetMinimum(0.4);
-		correlationFunction->SetMaximum(1.1);
+		correlationFunction->SetAxisRange(0,0.06);
+		correlationFunction->SetMinimum(0.75);
+		correlationFunction->SetMaximum(1.05);
 	}
 	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("piku") == 0)
 	{
 		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
 		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetAxisRange(0,0.06);
 		correlationFunction->SetMinimum(0.9);
-		correlationFunction->SetMaximum(2.1);
+		correlationFunction->SetMaximum(1.3);
 	}
 	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pip") == 0)
 	{
 		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
 		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
-		correlationFunction->SetMinimum(0.4);
-		correlationFunction->SetMaximum(1.1);
+		correlationFunction->SetAxisRange(0,0.06);
+		correlationFunction->SetMinimum(0.75);
+		correlationFunction->SetMaximum(1.05);
 	}
 	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pipi") == 0)
 	{
@@ -524,8 +528,9 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
 		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetAxisRange(0,0.06);
 		correlationFunction->SetMinimum(0.9);
-		correlationFunction->SetMaximum(2.1);
+		correlationFunction->SetMaximum(1.3);
 	}
 	else if(sFunctionType.compare("1D") == 0 && sPairType.compare("pp") == 0)
 	{
@@ -549,7 +554,8 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0,1.1);
 		// correlationFunction->SetAxisRange(0,1.1,"Y");
-		correlationFunction->SetMinimum(0);
+		correlationFunction->SetAxisRange(0,0.1);
+		correlationFunction->SetMinimum(0.5);
 		correlationFunction->SetMaximum(1.1);
 	}
 	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pik") == 0)
@@ -557,24 +563,27 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
 		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
-		correlationFunction->SetMinimum(0.4);
-		correlationFunction->SetMaximum(1.1);
+		correlationFunction->SetAxisRange(0,0.06);
+		correlationFunction->SetMinimum(0.75);
+		correlationFunction->SetMaximum(1.05);
 	}
 	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("piku") == 0)
 	{
 		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
 		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetAxisRange(0,0.06);
 		correlationFunction->SetMinimum(0.9);
-		correlationFunction->SetMaximum(2.1);
+		correlationFunction->SetMaximum(1.3);
 	}
 	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pip") == 0)
 	{
 		// correlationFunction->GetYaxis()->SetLimits(0.4,1.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.4,1.1);
 		// correlationFunction->SetAxisRange(0.4,1.1,"Y");
-		correlationFunction->SetMinimum(0.4);
-		correlationFunction->SetMaximum(1.1);
+		correlationFunction->SetAxisRange(0,0.06);
+		correlationFunction->SetMinimum(0.75);
+		correlationFunction->SetMaximum(1.05);
 	}
 	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pipi") == 0)
 	{
@@ -589,8 +598,9 @@ void SetRanges(TH1D* correlationFunction, const char* pairType, const char* func
 		// correlationFunction->GetYaxis()->SetLimits(0.9,2.1);
 		// correlationFunction->GetYaxis()->SetRangeUser(0.9,2.1);
 		// correlationFunction->SetAxisRange(0.9,2.1,"Y");
+		correlationFunction->SetAxisRange(0,0.06);
 		correlationFunction->SetMinimum(0.9);
-		correlationFunction->SetMaximum(2.1);
+		correlationFunction->SetMaximum(1.3);
 	}
 	else if(sFunctionType.compare("SH00") == 0 && sPairType.compare("pp") == 0)
 	{
